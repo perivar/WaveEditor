@@ -189,11 +189,13 @@ namespace CommonUtils.GUI
 			// CustomWaveViewer
 			// 
 			this.Name = "CustomWaveViewer";
+			this.Size = new System.Drawing.Size(492, 150);
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseDown);
 			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseMove);
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseUp);
 			this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseWheel);
 			this.ResumeLayout(false);
+
 		}
 		#endregion
 		
