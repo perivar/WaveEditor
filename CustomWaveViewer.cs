@@ -203,38 +203,38 @@ namespace CommonUtils.GUI
 		void CustomWaveViewerMouseWheel(object sender, MouseEventArgs e)
 		{
 			// most of the mouse wheel zoom logic is taken from BlueberryThing Source
-			int range;
+			int rangeInSamples;
 			int midpoint;
 			int delta;
-			int oldstartZoomSamplePosition;
-			int oldendZoomSamplePosition;
-			int newstartZoomSamplePosition;
-			int newendZoomSamplePosition;
+			int oldStartZoomSamplePosition;
+			int oldEndZoomSamplePosition;
+			int newStartZoomSamplePosition;
+			int newEndZoomSamplePosition;
 			float hitpointFraction;
 			
-			oldstartZoomSamplePosition = startZoomSamplePosition;
-			oldendZoomSamplePosition = endZoomSamplePosition;
+			oldStartZoomSamplePosition = startZoomSamplePosition;
+			oldEndZoomSamplePosition = endZoomSamplePosition;
 			
-			range = endZoomSamplePosition - startZoomSamplePosition;
+			rangeInSamples = endZoomSamplePosition - startZoomSamplePosition;
 			
 			// Scroll the display left/right
 			if ((Control.ModifierKeys & Keys.Control) == Keys.Control) {
-				delta = range / 20;
+				delta = rangeInSamples / 20;
 				
 				// If scrolling right (forward in time on the waveform)
 				if (e.Delta > 0)
 				{
 					delta = MathUtils.LimitInt(delta, 0, (soundPlayer.WaveformData.Length) - endZoomSamplePosition);
-					newstartZoomSamplePosition = startZoomSamplePosition + delta;
-					newendZoomSamplePosition = endZoomSamplePosition + delta;
+					newStartZoomSamplePosition = startZoomSamplePosition + delta;
+					newEndZoomSamplePosition = endZoomSamplePosition + delta;
 				}
 				
 				// If scrolling left (backward in time on the waveform)
 				else
 				{
 					delta = MathUtils.LimitInt(delta, 0, startZoomSamplePosition);
-					newstartZoomSamplePosition = startZoomSamplePosition - delta;
-					newendZoomSamplePosition = endZoomSamplePosition - delta;
+					newStartZoomSamplePosition = startZoomSamplePosition - delta;
+					newEndZoomSamplePosition = endZoomSamplePosition - delta;
 				}
 			}
 
@@ -265,7 +265,7 @@ namespace CommonUtils.GUI
 			// Zoom the display in/out
 			else
 			{
-				midpoint = startZoomSamplePosition + (range / 2);
+				midpoint = startZoomSamplePosition + (rangeInSamples / 2);
 				hitpointFraction = (float)e.X / (float)this.Width;
 				if (hitpointFraction < 0.0f)
 					hitpointFraction = 0.0f;
@@ -275,12 +275,12 @@ namespace CommonUtils.GUI
 				if (e.Delta > 0)
 				{
 					// Zoom in
-					delta = range / 4;
-					newstartZoomSamplePosition = (int) (startZoomSamplePosition + (delta * hitpointFraction));
-					newendZoomSamplePosition = (int) (endZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
+					delta = rangeInSamples / 4;
+					newStartZoomSamplePosition = (int) (startZoomSamplePosition + (delta * hitpointFraction));
+					newEndZoomSamplePosition = (int) (endZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
 					
 					// only allow zooming if samples are more than 10
-					int samplesSelected = newendZoomSamplePosition - newstartZoomSamplePosition;
+					int samplesSelected = newEndZoomSamplePosition - newStartZoomSamplePosition;
 					if (samplesSelected <= 10) {
 						return;
 					}
@@ -288,28 +288,28 @@ namespace CommonUtils.GUI
 				else
 				{
 					// Zoom out
-					delta = range / 3; // must use a higher delta than zoom in to make sure we can zoom out again
-					newstartZoomSamplePosition = (int) (startZoomSamplePosition - (delta * hitpointFraction));
-					newendZoomSamplePosition = (int) (endZoomSamplePosition + (delta * (1.0 - hitpointFraction)));
+					delta = rangeInSamples / 3; // must use a higher delta than zoom in to make sure we can zoom out again
+					newStartZoomSamplePosition = (int) (startZoomSamplePosition - (delta * hitpointFraction));
+					newEndZoomSamplePosition = (int) (endZoomSamplePosition + (delta * (1.0 - hitpointFraction)));
 				}
 				
 				// Limit the view
-				if (newstartZoomSamplePosition < 0)
-					newstartZoomSamplePosition = 0;
-				if (newstartZoomSamplePosition > midpoint)
-					newstartZoomSamplePosition = midpoint;
-				if (newendZoomSamplePosition < midpoint)
-					newendZoomSamplePosition = midpoint;
-				if (newendZoomSamplePosition > (soundPlayer.WaveformData.Length))
-					newendZoomSamplePosition = soundPlayer.WaveformData.Length;
+				if (newStartZoomSamplePosition < 0)
+					newStartZoomSamplePosition = 0;
+				if (newStartZoomSamplePosition > midpoint)
+					newStartZoomSamplePosition = midpoint;
+				if (newEndZoomSamplePosition < midpoint)
+					newEndZoomSamplePosition = midpoint;
+				if (newEndZoomSamplePosition > (soundPlayer.WaveformData.Length))
+					newEndZoomSamplePosition = soundPlayer.WaveformData.Length;
 			}
 			
-			startZoomSamplePosition = newstartZoomSamplePosition;
-			endZoomSamplePosition = newendZoomSamplePosition;
+			startZoomSamplePosition = newStartZoomSamplePosition;
+			endZoomSamplePosition = newEndZoomSamplePosition;
 			
 			// If there a change in the view, then refresh the display
-			if ((startZoomSamplePosition != oldstartZoomSamplePosition)
-			    || (endZoomSamplePosition != oldendZoomSamplePosition))
+			if ((startZoomSamplePosition != oldStartZoomSamplePosition)
+			    || (endZoomSamplePosition != oldEndZoomSamplePosition))
 			{
 				Zoom(startZoomSamplePosition, endZoomSamplePosition);
 			}
