@@ -38,6 +38,11 @@ namespace CommonUtils.Audio
 		double ChannelLength { get; }
 
 		/// <summary>
+		/// Gets the number of Channels (2 = stereo)
+		/// </summary>
+		int Channels { get; }
+		
+		/// <summary>
 		/// Gets the raw level data for the waveform.
 		/// </summary>
 		/// <remarks>

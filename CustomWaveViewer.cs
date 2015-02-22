@@ -71,7 +71,7 @@ namespace CommonUtils.GUI
 					e.Graphics.DrawRectangle(loopPen, startSelectXPosition, 0, selectRegion.Width, selectRegion.Height);
 				}
 			}
-			
+
 			// Calling the base class OnPaint
 			base.OnPaint(e);
 		}
@@ -157,7 +157,7 @@ namespace CommonUtils.GUI
 			
 			if (soundPlayer.WaveformData != null && soundPlayer.WaveformData.Length > 1)
 			{
-				this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, soundPlayer.SampleRate, true);
+				this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, soundPlayer.SampleRate, soundPlayer.Channels, true);
 
 				// force redraw
 				this.Invalidate();
@@ -189,13 +189,12 @@ namespace CommonUtils.GUI
 			// CustomWaveViewer
 			// 
 			this.Name = "CustomWaveViewer";
-			this.Size = new System.Drawing.Size(492, 150);
+			this.Size = new System.Drawing.Size(600, 200);
 			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseDown);
 			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseMove);
 			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseUp);
 			this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.CustomWaveViewerMouseWheel);
 			this.ResumeLayout(false);
-
 		}
 		#endregion
 		
