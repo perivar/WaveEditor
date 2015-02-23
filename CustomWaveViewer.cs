@@ -45,6 +45,9 @@ namespace CommonUtils.GUI
 		Rectangle selectRegion = new Rectangle();
 		int startSelectXPosition = -1;
 		int endSelectXPosition = -1;
+
+		// setup image attributes for color negation
+		ImageAttributes imageAttributes = new ImageAttributes();
 		#endregion
 		
 		#region Event Overrides
@@ -59,17 +62,6 @@ namespace CommonUtils.GUI
 		
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			// setup image attributes for color negation
-			var attributes = new ImageAttributes();
-			float[][] colorMatrixElements = {
-				new float[] {-1,  0,  0,  0, 0},
-				new float[] {0,  -1,  0,  0, 0},
-				new float[] {0,  0,  -1,  0, 0},
-				new float[] {0,  0,  0,  1, 0},
-				new float[] {1,  1,  1,  0, 1}};
-			var matrix = new ColorMatrix(colorMatrixElements);
-			attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-			
 			if (offlineBitmap != null) {
 
 				// create a blank bitmap the same size as original
@@ -82,7 +74,7 @@ namespace CommonUtils.GUI
 				gNewBitmap.DrawImage(offlineBitmap, 0, 0);
 				
 				// draw marker
-				using (var markerPen = new Pen(Color.Black, 1))
+				using (var markerPen = new Pen(Color.Blue, 1))
 				{
 					// what samples are we showing?
 					if (progressSample >= startZoomSamplePosition && progressSample <= endZoomSamplePosition) {
@@ -90,14 +82,14 @@ namespace CommonUtils.GUI
 						gNewBitmap.DrawLine(markerPen, (float) xLocation, TOP_MARGIN - 1, (float) xLocation, waveformDrawingHeight + TOP_MARGIN - 1);
 					}
 				}
-
+				
 				// draw the temporary bitmap onto the main canvas
 				e.Graphics.DrawImageUnscaled(tempImage, 0, 0);
 				
-				// setup the region we want to invert
+				// setup the region we want to invert (select region)
 				var destination = new Rectangle(startSelectXPosition, TOP_MARGIN - 1, selectRegion.Width, selectRegion.Height - 2 * TOP_MARGIN);
-				//var region = new Region(destination);
-				//e.Graphics.Clip = region;
+				var region = new Region(destination);
+				e.Graphics.Clip = region;
 
 				// draw select region
 				/*
@@ -109,12 +101,12 @@ namespace CommonUtils.GUI
 				}
 				 */
 
-				// then invert the region we want
+				// invert the select region
 				e.Graphics.DrawImage(tempImage, destination, destination.Left, destination.Top,
-				                     destination.Width, destination.Height, GraphicsUnit.Pixel, attributes);
+				                     destination.Width, destination.Height, GraphicsUnit.Pixel, imageAttributes);
 
 				
-				// dispose of the temporary Graphics object
+				// dispose of the temporary Graphics objects
 				gNewBitmap.Dispose();
 				tempImage.Dispose();
 			}
@@ -176,10 +168,22 @@ namespace CommonUtils.GUI
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
+			InitializeComponent();
+			
 			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
 			              ControlStyles.OptimizedDoubleBuffer, true);
-			InitializeComponent();
 			this.DoubleBuffered = true;
+
+			// http://inchoatethoughts.com/custom-drawing-controls-in-c-manual-double-buffering
+			
+			float[][] colorMatrixElements = {
+				new float[] {-1, 0,  0,  0,  0},
+				new float[] {0, -1,  0,  0,  0},
+				new float[] {0,  0, -1,  0,  0},
+				new float[] {0,  0,  0,  1,  0},
+				new float[] {1,  1,  1,  0,  1}};
+			var matrix = new ColorMatrix(colorMatrixElements);
+			imageAttributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 		}
 		#endregion
 
@@ -205,6 +209,7 @@ namespace CommonUtils.GUI
 			if (soundPlayer.ChannelSampleLength > 1) {
 				//this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, startLoopSamplePosition, endLoopSamplePosition, progressSample, soundPlayer.SampleRate, soundPlayer.Channels);
 				this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, -1, -1, -1, soundPlayer.SampleRate, soundPlayer.Channels);
+				//this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, -1, -1, progressSample, soundPlayer.SampleRate, soundPlayer.Channels);
 
 				// force redraw
 				this.Invalidate();
@@ -381,6 +386,10 @@ namespace CommonUtils.GUI
 				if (Math.Abs(currentPoint.X - mouseDownPoint.X) > mouseMoveTolerance) {
 					startSelectXPosition = Math.Min(mouseDownPoint.X, currentPoint.X);
 					endSelectXPosition = Math.Max(mouseDownPoint.X, currentPoint.X);
+					
+					// limit start and end to waveform drawing space
+					if (startSelectXPosition < SIDE_MARGIN) startSelectXPosition = SIDE_MARGIN;
+					if (endSelectXPosition > SIDE_MARGIN + waveformDrawingWidth) endSelectXPosition = SIDE_MARGIN + waveformDrawingWidth;
 				} else {
 					ClearSelectRegion();
 				}
