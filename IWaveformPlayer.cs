@@ -28,6 +28,11 @@ namespace CommonUtils.Audio
 	public interface IWaveformPlayer : ISoundPlayer
 	{
 		/// <summary>
+		/// Return the file path, can be null
+		/// </summary>
+		string FilePath { get; }
+		
+		/// <summary>
 		/// Gets or sets the current sound streams playback position.
 		/// </summary>
 		double ChannelPosition { get; set; }
@@ -41,6 +46,16 @@ namespace CommonUtils.Audio
 		/// Gets the number of Channels (2 = stereo)
 		/// </summary>
 		int Channels { get; }
+		
+		/// <summary>
+		/// Return the sample length per Channel (i.e. if the waveform is stereo, this is half the total sample length)
+		/// </summary>
+		int ChannelSampleLength { get; }
+
+		/// <summary>
+		/// Return the total sample length (i.e. if the waveform is stereo, this is double the channel sample length)
+		/// </summary>
+		int TotalSampleLength { get; }
 		
 		/// <summary>
 		/// Gets the raw level data for the waveform.
