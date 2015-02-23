@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 using CommonUtils.FFT; // Audio Analyzer
@@ -17,8 +18,10 @@ namespace CommonUtils.GUI
 		IWaveformPlayer soundPlayer;
 		Bitmap offlineBitmap;
 
-		const int MARGIN = 30; // waveform area margin
+		const int SIDE_MARGIN = 30; // waveform area side margin
+		const int TOP_MARGIN = 15; // waveform area top margin
 		int waveformDrawingWidth = 0; // the width where the waveform is drawn (excluding the margins)
+		int waveformDrawingHeight = 0; // the height where the waveform is drawn (excluding the margins)
 		
 		int progressSample = 0;
 
@@ -49,34 +52,73 @@ namespace CommonUtils.GUI
 		{
 			base.OnResize(e);
 
-			waveformDrawingWidth = this.Width - (2 * MARGIN);
+			waveformDrawingWidth = this.Width - (2 * SIDE_MARGIN);
+			waveformDrawingHeight = this.Height - (2 * TOP_MARGIN);
 			FitToScreen();
 		}
 		
 		protected override void OnPaint(PaintEventArgs e)
 		{
+			// setup image attributes for color negation
+			var attributes = new ImageAttributes();
+			float[][] colorMatrixElements = {
+				new float[] {-1,  0,  0,  0, 0},
+				new float[] {0,  -1,  0,  0, 0},
+				new float[] {0,  0,  -1,  0, 0},
+				new float[] {0,  0,  0,  1, 0},
+				new float[] {1,  1,  1,  0, 1}};
+			var matrix = new ColorMatrix(colorMatrixElements);
+			attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+			
 			if (offlineBitmap != null) {
-				e.Graphics.DrawImage(offlineBitmap, 0, 0);
-			}
-			
-			// draw marker
-			using (var markerPen = new Pen(Color.Black, 1))
-			{
-				// what samples are we showing?
-				if (progressSample >= startZoomSamplePosition && progressSample <= endZoomSamplePosition) {
-					double xLocation = MARGIN + ((progressSample - startZoomSamplePosition) / samplesPerPixel) - 1;
-					e.Graphics.DrawLine(markerPen, (float) xLocation, 0, (float) xLocation, Height);
-				}
-			}
-			
-			// draw select region
-			using (var loopPen = new Pen(Color.DarkBlue, 1))
-			{
-				if (selectRegion.Height > 0 && selectRegion.Width > 0)  {
-					e.Graphics.DrawRectangle(loopPen, startSelectXPosition, 0, selectRegion.Width, selectRegion.Height);
-				}
-			}
 
+				// create a blank bitmap the same size as original
+				var tempImage = new Bitmap(offlineBitmap.Width, offlineBitmap.Height);
+				
+				// get a graphics object from the new image
+				Graphics gNewBitmap = Graphics.FromImage(tempImage);
+
+				// draw the offline bitmap
+				gNewBitmap.DrawImage(offlineBitmap, 0, 0);
+				
+				// draw marker
+				using (var markerPen = new Pen(Color.Black, 1))
+				{
+					// what samples are we showing?
+					if (progressSample >= startZoomSamplePosition && progressSample <= endZoomSamplePosition) {
+						double xLocation = SIDE_MARGIN + ((progressSample - startZoomSamplePosition) / samplesPerPixel) - 1;
+						gNewBitmap.DrawLine(markerPen, (float) xLocation, TOP_MARGIN - 1, (float) xLocation, waveformDrawingHeight + TOP_MARGIN - 1);
+					}
+				}
+
+				// draw the temporary bitmap onto the main canvas
+				e.Graphics.DrawImageUnscaled(tempImage, 0, 0);
+				
+				// setup the region we want to invert
+				var destination = new Rectangle(startSelectXPosition, TOP_MARGIN - 1, selectRegion.Width, selectRegion.Height - 2 * TOP_MARGIN);
+				//var region = new Region(destination);
+				//e.Graphics.Clip = region;
+
+				// draw select region
+				/*
+				using (var loopPen = new Pen(Color.DarkBlue, 1))
+				{
+					if (destination.Height > 0 && destination.Width > 0)  {
+						e.Graphics.DrawRectangle(loopPen, destination);
+					}
+				}
+				 */
+
+				// then invert the region we want
+				e.Graphics.DrawImage(tempImage, destination, destination.Left, destination.Top,
+				                     destination.Width, destination.Height, GraphicsUnit.Pixel, attributes);
+
+				
+				// dispose of the temporary Graphics object
+				gNewBitmap.Dispose();
+				tempImage.Dispose();
+			}
+			
 			// Calling the base class OnPaint
 			base.OnPaint(e);
 		}
@@ -370,7 +412,7 @@ namespace CommonUtils.GUI
 
 			if (Math.Abs(currentPoint.X - mouseDownPoint.X) < mouseMoveTolerance) {
 				// if we did not select a new loop range but just clicked
-				int curSamplePosition = (int)(previousStartZoomSamplePosition + samplesPerPixel * (mouseDownPoint.X - MARGIN));
+				int curSamplePosition = (int)(previousStartZoomSamplePosition + samplesPerPixel * (mouseDownPoint.X - SIDE_MARGIN));
 
 				if (PointInLoopRegion(curSamplePosition)) {
 					soundPlayer.ChannelPosition = SamplePositionToSeconds(curSamplePosition, soundPlayer.ChannelSampleLength, soundPlayer.ChannelLength);
@@ -385,8 +427,8 @@ namespace CommonUtils.GUI
 					doUpdateLoopRegion = true;
 				}
 			} else {
-				startLoopSamplePosition = Math.Max((int)(previousStartZoomSamplePosition + samplesPerPixel * (startSelectXPosition-MARGIN)), 0);
-				endLoopSamplePosition = Math.Min((int)(previousStartZoomSamplePosition + samplesPerPixel * (endSelectXPosition-MARGIN)), soundPlayer.ChannelSampleLength);
+				startLoopSamplePosition = Math.Max((int)(previousStartZoomSamplePosition + samplesPerPixel * (startSelectXPosition-SIDE_MARGIN)), 0);
+				endLoopSamplePosition = Math.Min((int)(previousStartZoomSamplePosition + samplesPerPixel * (endSelectXPosition-SIDE_MARGIN)), soundPlayer.ChannelSampleLength);
 
 				soundPlayer.SelectionBegin = TimeSpan.FromSeconds(SamplePositionToSeconds(startLoopSamplePosition, soundPlayer.ChannelSampleLength, soundPlayer.ChannelLength));
 				soundPlayer.SelectionEnd = TimeSpan.FromSeconds(SamplePositionToSeconds(endLoopSamplePosition, soundPlayer.ChannelSampleLength, soundPlayer.ChannelLength));
