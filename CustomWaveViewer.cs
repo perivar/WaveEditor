@@ -116,49 +116,6 @@ namespace CommonUtils.GUI
 		}
 		#endregion
 		
-		#region Zoom Methods
-		public void Zoom(int startZoomSamplePosition, int endZoomSamplePosition)
-		{
-			if (soundPlayer != null && soundPlayer.ChannelSampleLength > 1)
-			{
-				// make sure the zoom start and zoom end is correct
-				if (startZoomSamplePosition < 0)
-					startZoomSamplePosition = 0;
-				if (endZoomSamplePosition > soundPlayer.ChannelSampleLength)
-					endZoomSamplePosition = soundPlayer.ChannelSampleLength;
-				
-				previousStartZoomSamplePosition = startZoomSamplePosition;
-				samplesPerPixel = (float) (endZoomSamplePosition - startZoomSamplePosition) / (float) waveformDrawingWidth;
-
-				// remove select region after zooming
-				ClearSelectRegion();
-
-				UpdateWaveform();
-			}
-		}
-		
-		public void FitToScreen()
-		{
-			if (soundPlayer != null && soundPlayer.ChannelSampleLength > 1)
-			{
-				int numberOfChannelSamples = soundPlayer.ChannelSampleLength;
-				samplesPerPixel = (float) numberOfChannelSamples / (float) waveformDrawingWidth;
-
-				previousStartZoomSamplePosition = 0;
-				startZoomSamplePosition = 0;
-				endZoomSamplePosition = numberOfChannelSamples;
-			}
-
-			// remove select region after zooming
-			ClearSelectRegion();
-			
-			// reset amplitude
-			amplitude = 1;
-			
-			UpdateWaveform();
-		}
-		#endregion
-		
 		#region Constructors
 		/// <summary>
 		/// Creates a new WaveViewer control
@@ -198,6 +155,80 @@ namespace CommonUtils.GUI
 			this.soundPlayer = soundPlayer;
 			soundPlayer.PropertyChanged += soundPlayer_PropertyChanged;
 		}
+
+		public void SelectAll() {
+			startSelectXPosition = SIDE_MARGIN;
+			endSelectXPosition = SIDE_MARGIN + waveformDrawingWidth;
+			UpdateSelectRegion();
+		}
+		
+		public void ScrollRight() {
+			ScrollTime(true);
+		}
+		
+		public void ScrollLeft() {
+			ScrollTime(false);
+		}
+		
+		public void ZoomInAmplitude() {
+			// increase the amplitude
+			if (amplitude * 2 < 5000) {
+				amplitude*=2;
+				UpdateWaveform();
+			}
+		}
+		
+		public void ZoomOutAmplitude() {
+			// decrease the amplitude
+			amplitude/=2;
+			if (amplitude < 1) amplitude = 1;
+			UpdateWaveform();
+		}
+		
+		#region Zoom Methods
+		public void Zoom(int startZoomSamplePosition, int endZoomSamplePosition)
+		{
+			if (soundPlayer != null && soundPlayer.ChannelSampleLength > 1)
+			{
+				// make sure the zoom start and zoom end is correct
+				if (startZoomSamplePosition < 0)
+					startZoomSamplePosition = 0;
+				if (endZoomSamplePosition > soundPlayer.ChannelSampleLength)
+					endZoomSamplePosition = soundPlayer.ChannelSampleLength;
+				
+				previousStartZoomSamplePosition = startZoomSamplePosition;
+				samplesPerPixel = (float) (endZoomSamplePosition - startZoomSamplePosition) / (float) waveformDrawingWidth;
+
+				// remove select region after zooming
+				ClearSelectRegion();
+
+				// and update the waveform
+				UpdateWaveform();
+			}
+		}
+		
+		public void FitToScreen()
+		{
+			if (soundPlayer != null && soundPlayer.ChannelSampleLength > 1)
+			{
+				int numberOfChannelSamples = soundPlayer.ChannelSampleLength;
+				samplesPerPixel = (float) numberOfChannelSamples / (float) waveformDrawingWidth;
+
+				previousStartZoomSamplePosition = 0;
+				startZoomSamplePosition = 0;
+				endZoomSamplePosition = numberOfChannelSamples;
+			}
+
+			// remove select region after zooming
+			ClearSelectRegion();
+			
+			// reset amplitude
+			amplitude = 1;
+			
+			UpdateWaveform();
+		}
+		#endregion
+		
 		#endregion
 		
 		#region Private Drawing Methods
@@ -469,20 +500,13 @@ namespace CommonUtils.GUI
 			base.OnKeyDown(e);
 			
 			if (e.KeyCode == Keys.Up) {
-				// increase the amplitude
-				if (amplitude * 2 < 5000) {
-					amplitude*=2;
-					UpdateWaveform();
-				}
+				ZoomInAmplitude();
 			} else if (e.KeyCode == Keys.Down) {
-				// decrease the amplitude
-				amplitude/=2;
-				if (amplitude < 1) amplitude = 1;
-				UpdateWaveform();
+				ZoomOutAmplitude();
 			} else if (e.KeyCode == Keys.Right) {
-				ScrollTime(true);
+				ScrollRight();
 			} else if (e.KeyCode == Keys.Left) {
-				ScrollTime(false);
+				ScrollLeft();
 			} else if (e.KeyCode == Keys.Oemcomma || e.KeyCode == Keys.Home) {
 				soundPlayer.ChannelPosition = 0;
 				FitToScreen();
