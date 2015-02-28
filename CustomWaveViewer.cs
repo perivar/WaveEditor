@@ -62,6 +62,7 @@ namespace CommonUtils.GUI
 			set {
 				_samplesPerPixel = value;
 				NotifyPropertyChanged("SamplesPerPixel");
+				NotifyPropertyChanged("ZoomRatioString");
 			}
 		}
 
@@ -101,6 +102,7 @@ namespace CommonUtils.GUI
 			}
 			set {
 				_startZoomSamplePosition = value;
+				NotifyPropertyChanged("StartZoomSamplePosition");
 			}
 		}
 
@@ -110,6 +112,7 @@ namespace CommonUtils.GUI
 			}
 			set {
 				_endZoomSamplePosition = value;
+				NotifyPropertyChanged("EndZoomSamplePosition");
 			}
 		}
 
@@ -120,6 +123,35 @@ namespace CommonUtils.GUI
 			set {
 				_previousStartZoomSamplePosition = value;
 			}
+		}
+		#endregion
+
+		#region Constructors
+		/// <summary>
+		/// Creates a new WaveViewer control
+		/// </summary>
+		public CustomWaveViewer()
+		{
+			//
+			// The InitializeComponent() call is required for Windows Forms designer support.
+			//
+			InitializeComponent();
+			
+			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
+			              ControlStyles.OptimizedDoubleBuffer, true);
+			this.DoubleBuffered = true;
+
+			// http://inchoatethoughts.com/custom-drawing-controls-in-c-manual-double-buffering
+			
+			// Setup Color Matrix for inverting the selection
+			float[][] colorMatrixElements = {
+				new float[] {-1, 0,  0,  0,  0},
+				new float[] {0, -1,  0,  0,  0},
+				new float[] {0,  0, -1,  0,  0},
+				new float[] {0,  0,  0,  1,  0},
+				new float[] {1,  1,  1,  0,  1}};
+			var matrix = new ColorMatrix(colorMatrixElements);
+			_imageAttributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 		}
 		#endregion
 		
@@ -180,35 +212,6 @@ namespace CommonUtils.GUI
 		}
 		#endregion
 		
-		#region Constructors
-		/// <summary>
-		/// Creates a new WaveViewer control
-		/// </summary>
-		public CustomWaveViewer()
-		{
-			//
-			// The InitializeComponent() call is required for Windows Forms designer support.
-			//
-			InitializeComponent();
-			
-			this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
-			              ControlStyles.OptimizedDoubleBuffer, true);
-			this.DoubleBuffered = true;
-
-			// http://inchoatethoughts.com/custom-drawing-controls-in-c-manual-double-buffering
-			
-			// Setup Color Matrix for inverting the selection
-			float[][] colorMatrixElements = {
-				new float[] {-1, 0,  0,  0,  0},
-				new float[] {0, -1,  0,  0,  0},
-				new float[] {0,  0, -1,  0,  0},
-				new float[] {0,  0,  0,  1,  0},
-				new float[] {1,  1,  1,  0,  1}};
-			var matrix = new ColorMatrix(colorMatrixElements);
-			_imageAttributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-		}
-		#endregion
-
 		#region Public Methods
 		/// <summary>
 		/// Register a sound player from which the waveform timeline
@@ -314,7 +317,7 @@ namespace CommonUtils.GUI
 				SamplesPerPixel = (float) (endZoomSamplePos - startZoomSamplePos) / (float) _waveformDrawingWidth;
 
 				// remove select region after zooming
-				ClearSelectRegion();
+				//ClearSelectRegion();
 				
 				// and update the waveform
 				UpdateWaveform();
@@ -351,9 +354,7 @@ namespace CommonUtils.GUI
 				return;
 			
 			if (_soundPlayer.ChannelSampleLength > 1) {
-				//this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, startLoopSamplePosition, endLoopSamplePosition, progressSample, soundPlayer.SampleRate, soundPlayer.Channels);
 				this._offlineBitmap = AudioAnalyzer.DrawWaveform(_soundPlayer.WaveformData, new Size(this.Width, this.Height), _amplitude, _startZoomSamplePosition, _endZoomSamplePosition, -1, -1, -1, _soundPlayer.SampleRate, _soundPlayer.Channels);
-				//this.offlineBitmap = AudioAnalyzer.DrawWaveform(soundPlayer.WaveformData, new Size(this.Width, this.Height), amplitude, startZoomSamplePosition, endZoomSamplePosition, -1, -1, progressSample, soundPlayer.SampleRate, soundPlayer.Channels);
 
 				// force redraw
 				this.Invalidate();
@@ -396,20 +397,20 @@ namespace CommonUtils.GUI
 		#region MouseAndKeyEvents
 		void CustomWaveViewerMouseWheel(object sender, MouseEventArgs e)
 		{
+			// read in the current zoom sample positions and sample length
+			int oldStartZoomSamplePosition = _startZoomSamplePosition;
+			int oldEndZoomSamplePosition = _endZoomSamplePosition;
+			int channelSampleLength = _soundPlayer.ChannelSampleLength;
+			
 			// most of the mouse wheel zoom logic is taken from BlueberryThing Source
-			int rangeInSamples;
 			int midpoint;
 			int delta;
-			int oldStartZoomSamplePosition;
-			int oldEndZoomSamplePosition;
 			int newStartZoomSamplePosition;
 			int newEndZoomSamplePosition;
 			float hitpointFraction;
 			
-			oldStartZoomSamplePosition = _startZoomSamplePosition;
-			oldEndZoomSamplePosition = _endZoomSamplePosition;
-			
-			rangeInSamples = _endZoomSamplePosition - _startZoomSamplePosition;
+			// calculate the range
+			int rangeInSamples = oldEndZoomSamplePosition - oldStartZoomSamplePosition;
 			
 			// Scroll the display left/right
 			if ((Control.ModifierKeys & Keys.Control) == Keys.Control) {
@@ -417,17 +418,17 @@ namespace CommonUtils.GUI
 				
 				// If scrolling right (forward in time on the waveform)
 				if (e.Delta > 0) {
-					delta = MathUtils.LimitInt(delta, 0, _soundPlayer.ChannelSampleLength - _endZoomSamplePosition);
-					newStartZoomSamplePosition = _startZoomSamplePosition + delta;
-					newEndZoomSamplePosition = _endZoomSamplePosition + delta;
+					delta = MathUtils.LimitInt(delta, 0, channelSampleLength - oldEndZoomSamplePosition);
+					newStartZoomSamplePosition = oldStartZoomSamplePosition + delta;
+					newEndZoomSamplePosition = oldEndZoomSamplePosition + delta;
 				}
 				
 				// If scrolling left (backward in time on the waveform)
 				else
 				{
-					delta = MathUtils.LimitInt(delta, 0, _startZoomSamplePosition);
-					newStartZoomSamplePosition = _startZoomSamplePosition - delta;
-					newEndZoomSamplePosition = _endZoomSamplePosition - delta;
+					delta = MathUtils.LimitInt(delta, 0, oldStartZoomSamplePosition);
+					newStartZoomSamplePosition = oldStartZoomSamplePosition - delta;
+					newEndZoomSamplePosition = oldEndZoomSamplePosition - delta;
 				}
 			}
 
@@ -455,7 +456,7 @@ namespace CommonUtils.GUI
 			
 			// Zoom the display in/out
 			else {
-				midpoint = _startZoomSamplePosition + (rangeInSamples / 2);
+				midpoint = oldStartZoomSamplePosition + (rangeInSamples / 2);
 				hitpointFraction = (float)e.X / (float)this.Width;
 				if (hitpointFraction < 0.0f)
 					hitpointFraction = 0.0f;
@@ -465,8 +466,8 @@ namespace CommonUtils.GUI
 				if (e.Delta > 0) {
 					// Zoom in
 					delta = rangeInSamples / 4;
-					newStartZoomSamplePosition = (int) (_startZoomSamplePosition + (delta * hitpointFraction));
-					newEndZoomSamplePosition = (int) (_endZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
+					newStartZoomSamplePosition = (int) (oldStartZoomSamplePosition + (delta * hitpointFraction));
+					newEndZoomSamplePosition = (int) (oldEndZoomSamplePosition - (delta * (1.0 - hitpointFraction)));
 					
 					// only allow zooming if samples are more than 10
 					int samplesSelected = newEndZoomSamplePosition - newStartZoomSamplePosition;
@@ -476,8 +477,8 @@ namespace CommonUtils.GUI
 				} else {
 					// Zoom out
 					delta = rangeInSamples / 3; // must use a higher delta than zoom in to make sure we can zoom out again
-					newStartZoomSamplePosition = (int) (_startZoomSamplePosition - (delta * hitpointFraction));
-					newEndZoomSamplePosition = (int) (_endZoomSamplePosition + (delta * (1.0 - hitpointFraction)));
+					newStartZoomSamplePosition = (int) (oldStartZoomSamplePosition - (delta * hitpointFraction));
+					newEndZoomSamplePosition = (int) (oldEndZoomSamplePosition + (delta * (1.0 - hitpointFraction)));
 				}
 				
 				// Limit the view
@@ -487,19 +488,16 @@ namespace CommonUtils.GUI
 					newStartZoomSamplePosition = midpoint;
 				if (newEndZoomSamplePosition < midpoint)
 					newEndZoomSamplePosition = midpoint;
-				if (newEndZoomSamplePosition > _soundPlayer.ChannelSampleLength)
-					newEndZoomSamplePosition = _soundPlayer.ChannelSampleLength;
+				if (newEndZoomSamplePosition > channelSampleLength)
+					newEndZoomSamplePosition = channelSampleLength;
 			}
 			
-			StartZoomSamplePosition = newStartZoomSamplePosition;
-			EndZoomSamplePosition = newEndZoomSamplePosition;
-			
 			// If there a change in the view, then refresh the display
-			if ((_startZoomSamplePosition != oldStartZoomSamplePosition)
-			    || (_endZoomSamplePosition != oldEndZoomSamplePosition))
+			if ((newStartZoomSamplePosition != oldStartZoomSamplePosition)
+			    || (newEndZoomSamplePosition != oldEndZoomSamplePosition))
 			{
 				// Zoom
-				Zoom(_startZoomSamplePosition, _endZoomSamplePosition);
+				Zoom(newStartZoomSamplePosition, newEndZoomSamplePosition);
 			}
 		}
 		
@@ -551,8 +549,8 @@ namespace CommonUtils.GUI
 			_isMouseDown = false;
 
 			if (_isZooming) {
-				StartZoomSamplePosition = Math.Max((int)(_previousStartZoomSamplePosition + _samplesPerPixel * _startSelectXPosition), 0);
-				EndZoomSamplePosition = Math.Min((int)(_previousStartZoomSamplePosition + _samplesPerPixel * _endSelectXPosition), _soundPlayer.ChannelSampleLength);
+				_startZoomSamplePosition = Math.Max((int)(_previousStartZoomSamplePosition + _samplesPerPixel * _startSelectXPosition), 0);
+				_endZoomSamplePosition = Math.Min((int)(_previousStartZoomSamplePosition + _samplesPerPixel * _endSelectXPosition), _soundPlayer.ChannelSampleLength);
 				
 				// only allow zooming if samples are more than 10
 				int samplesSelected = _endZoomSamplePosition - _startZoomSamplePosition;
@@ -676,45 +674,45 @@ namespace CommonUtils.GUI
 			return (samplePosition >= loopStartSamples && samplePosition < loopEndSamples);
 		}
 		
+		public void ScrollTime(bool doScrollRight, int channelSampleLength, int oldStartZoomSamplePosition, int oldEndZoomSamplePosition) {
+			int newStartZoomSamplePosition = -1;
+			int newEndZoomSamplePosition = -1;
+			
+			// calculate the range
+			int rangeInSamples = oldEndZoomSamplePosition - oldStartZoomSamplePosition;
+			int delta = rangeInSamples / 20;
+			
+			// If scrolling right (forward in time on the waveform)
+			if (doScrollRight) {
+				delta = MathUtils.LimitInt(delta, 0, channelSampleLength - oldEndZoomSamplePosition);
+				newStartZoomSamplePosition = oldStartZoomSamplePosition + delta;
+				newEndZoomSamplePosition = oldEndZoomSamplePosition + delta;
+			} else {
+				// If scrolling left (backward in time on the waveform)
+				delta = MathUtils.LimitInt(delta, 0, oldStartZoomSamplePosition);
+				newStartZoomSamplePosition = oldStartZoomSamplePosition - delta;
+				newEndZoomSamplePosition = oldEndZoomSamplePosition - delta;
+			}
+			
+			// If there a change in the view, then refresh the display
+			if ((newStartZoomSamplePosition != oldStartZoomSamplePosition)
+			    || (newEndZoomSamplePosition != oldEndZoomSamplePosition))
+			{
+				// Zoom
+				Zoom(newStartZoomSamplePosition, newEndZoomSamplePosition);
+			}
+		}
+		
 		private void ScrollTime(bool doScrollRight) {
 
 			if (_soundPlayer.WaveformData == null) return;
 
-			int range;
-			int delta;
-			int oldstartZoomSamplePosition;
-			int oldendZoomSamplePosition;
-			int newstartZoomSamplePosition;
-			int newendZoomSamplePosition;
-
-			oldstartZoomSamplePosition = _startZoomSamplePosition;
-			oldendZoomSamplePosition = _endZoomSamplePosition;
+			// read in the current zoom sample positions and sample length
+			int oldStartZoomSamplePosition = _startZoomSamplePosition;
+			int oldEndZoomSamplePosition = _endZoomSamplePosition;
+			int channelSampleLength = _soundPlayer.ChannelSampleLength;
 			
-			range = _endZoomSamplePosition - _startZoomSamplePosition;
-			delta = range / 20;
-			
-			// If scrolling right (forward in time on the waveform)
-			if (doScrollRight) {
-				delta = MathUtils.LimitInt(delta, 0, _soundPlayer.ChannelSampleLength - _endZoomSamplePosition);
-				newstartZoomSamplePosition = _startZoomSamplePosition + delta;
-				newendZoomSamplePosition = _endZoomSamplePosition + delta;
-			} else {
-				// If scrolling left (backward in time on the waveform)
-				delta = MathUtils.LimitInt(delta, 0, _startZoomSamplePosition);
-				newstartZoomSamplePosition = _startZoomSamplePosition - delta;
-				newendZoomSamplePosition = _endZoomSamplePosition - delta;
-			}
-			
-			_startZoomSamplePosition = newstartZoomSamplePosition;
-			_endZoomSamplePosition = newendZoomSamplePosition;
-			
-			// If there a change in the view, then refresh the display
-			if ((_startZoomSamplePosition != oldstartZoomSamplePosition)
-			    || (_endZoomSamplePosition != oldendZoomSamplePosition))
-			{
-				// Zoom
-				Zoom(_startZoomSamplePosition, _endZoomSamplePosition);
-			}
+			ScrollTime(doScrollRight, channelSampleLength, oldStartZoomSamplePosition, oldEndZoomSamplePosition);
 		}
 		
 		private void UpdateSelectRegion()
