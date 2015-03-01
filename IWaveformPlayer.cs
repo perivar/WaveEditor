@@ -1,31 +1,12 @@
-﻿// Copyright (C) 2011 - 2012, Jacob Johnston
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
-
-using System;
+﻿using System;
 namespace CommonUtils.Audio
 {
 	/// <summary>
 	/// Provides access to sound player functionality needed to
 	/// generate a Waveform.
+	/// The original interface idea copyright (C) 2011 - 2012, Jacob Johnston
 	/// </summary>
-	public interface IWaveformPlayer : ISoundPlayer
+	public interface IWaveformPlayer : ISoundPlayer, IDisposable
 	{
 		/// <summary>
 		/// Return the file path, can be null
@@ -51,6 +32,11 @@ namespace CommonUtils.Audio
 		/// Return the sample length per Channel (i.e. if the waveform is stereo, this is half the total sample length)
 		/// </summary>
 		int ChannelSampleLength { get; }
+		
+		/// <summary>
+		/// Return number of bits per sample (e.g. 16, 32, etc.)
+		/// </summary>
+		int BitsPerSample { get; }
 
 		/// <summary>
 		/// Return the total sample length (i.e. if the waveform is stereo, this is double the channel sample length)
@@ -77,5 +63,20 @@ namespace CommonUtils.Audio
 		/// Gets or sets the ending time for a section of repeat/looped audio.
 		/// </summary>
 		TimeSpan SelectionEnd { get; set; }
-	}
+		
+		/// <summary>
+		/// Read from file at a specific frequency rate
+		/// </summary>
+		/// <param name="filename">Filename to read from</param>
+		/// <param name="samplerate">Sample rate</param>
+		/// <param name="milliseconds">Milliseconds to read</param>
+		/// <param name="startmilliseconds">Start at a specific millisecond range</param>
+		/// <returns>Array with data</returns>
+		float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmilliseconds);
+		
+		/// <summary>
+		/// Open File using passed path
+		/// </summary>
+		/// <param name="path">path to audio file</param>
+		void OpenFile(string path);	}
 }

@@ -88,9 +88,6 @@
     <Compile Include="..\AudioVSTToolbox\CommonUtils\MidiUtils.cs">
       <Link>MidiUtils.cs</Link>
     </Compile>
-    <Compile Include="AudioObjects\Converters.cs" />
-    <Compile Include="AudioObjects\Extensions.cs" />
-    <Compile Include="AudioObjects\IAudioStream.cs" />
     <Compile Include="CustomSpectrumAnalyzer.cs" />
     <Compile Include="CustomSpectrumAnalyzer.Designer.cs">
       <DependentUpon>CustomSpectrumAnalyzer.cs</DependentUpon>
@@ -105,17 +102,10 @@
     <Compile Include="ISpectrumPlayer.cs" />
     <Compile Include="IWaveformPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Waveform\IWaveformCache.cs" />
-    <Compile Include="Waveform\IWaveformTheme.cs" />
-    <Compile Include="Waveform\TimelineUnit.cs" />
-    <Compile Include="Waveform\WaveEditorControl.cs" />
-    <Compile Include="Waveform\WaveEditorControl.Designer.cs">
-      <DependentUpon>WaveEditorControl.cs</DependentUpon>
+    <Compile Include="WaveEditor.cs" />
+    <Compile Include="WaveEditor.Designer.cs">
+      <DependentUpon>WaveEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Waveform\WaveformCache.cs" />
-    <Compile Include="Waveform\WaveformRenderer.cs" />
-    <Compile Include="Waveform\WaveformThemeWavelab.cs" />
-    <Compile Include="Waveform\WaveformThemeWhite.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="CustomSpectrumAnalyzer.resx">
@@ -124,14 +114,12 @@
     <EmbeddedResource Include="CustomWaveViewer.resx">
       <DependentUpon>CustomWaveViewer.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Waveform\WaveEditorControl.resx">
-      <DependentUpon>WaveEditorControl.Designer.cs</DependentUpon>
+    <EmbeddedResource Include="WaveEditor.resx">
+      <DependentUpon>WaveEditor.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="AudioObjects" />
     <Folder Include="Graphics" />
-    <Folder Include="Waveform" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
