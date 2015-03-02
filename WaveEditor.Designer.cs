@@ -26,6 +26,7 @@
 		private System.Windows.Forms.Label lblDuration;
 		private System.Windows.Forms.Label lblSelection;
 		private System.Windows.Forms.Label lblSamplerate;
+		private System.Windows.Forms.ToolTip toolTip1;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -48,6 +49,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WaveEditor));
 			this.customWaveViewer1 = new CommonUtils.GUI.CustomWaveViewer();
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -69,6 +71,7 @@
 			this.lblSamplerate = new System.Windows.Forms.Label();
 			this.lblChannels = new System.Windows.Forms.Label();
 			this.lblBitdepth = new System.Windows.Forms.Label();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.flowLayoutPanel1.SuspendLayout();
 			this.flowLayoutPanel2.SuspendLayout();
 			this.SuspendLayout();
@@ -78,12 +81,14 @@
 			this.customWaveViewer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
 			| System.Windows.Forms.AnchorStyles.Left) 
 			| System.Windows.Forms.AnchorStyles.Right)));
+			this.customWaveViewer1.EndLoopSamplePosition = -1;
 			this.customWaveViewer1.EndZoomSamplePosition = 0;
 			this.customWaveViewer1.Location = new System.Drawing.Point(0, 28);
 			this.customWaveViewer1.Name = "customWaveViewer1";
 			this.customWaveViewer1.PreviousStartZoomSamplePosition = 0;
 			this.customWaveViewer1.SamplesPerPixel = 128F;
 			this.customWaveViewer1.Size = new System.Drawing.Size(654, 229);
+			this.customWaveViewer1.StartLoopSamplePosition = -1;
 			this.customWaveViewer1.StartZoomSamplePosition = 0;
 			this.customWaveViewer1.TabIndex = 0;
 			this.customWaveViewer1.WaveformDrawingHeight = 199;
@@ -115,6 +120,7 @@
 			this.lblZoomIn.Name = "lblZoomIn";
 			this.lblZoomIn.Size = new System.Drawing.Size(16, 16);
 			this.lblZoomIn.TabIndex = 0;
+			this.toolTip1.SetToolTip(this.lblZoomIn, "Zoom In");
 			this.lblZoomIn.Click += new System.EventHandler(this.LblZoomInClick);
 			// 
 			// lblZoomOut
@@ -124,6 +130,7 @@
 			this.lblZoomOut.Name = "lblZoomOut";
 			this.lblZoomOut.Size = new System.Drawing.Size(16, 16);
 			this.lblZoomOut.TabIndex = 1;
+			this.toolTip1.SetToolTip(this.lblZoomOut, "Zoom Out");
 			this.lblZoomOut.Click += new System.EventHandler(this.LblZoomOutClick);
 			// 
 			// lblZoomSelection
@@ -133,6 +140,7 @@
 			this.lblZoomSelection.Name = "lblZoomSelection";
 			this.lblZoomSelection.Size = new System.Drawing.Size(16, 16);
 			this.lblZoomSelection.TabIndex = 2;
+			this.toolTip1.SetToolTip(this.lblZoomSelection, "Zoom Selection");
 			this.lblZoomSelection.Click += new System.EventHandler(this.LblZoomSelectionClick);
 			// 
 			// lblZoomInAmplitude
@@ -142,6 +150,7 @@
 			this.lblZoomInAmplitude.Name = "lblZoomInAmplitude";
 			this.lblZoomInAmplitude.Size = new System.Drawing.Size(16, 16);
 			this.lblZoomInAmplitude.TabIndex = 3;
+			this.toolTip1.SetToolTip(this.lblZoomInAmplitude, "Zoom In Amplitude");
 			this.lblZoomInAmplitude.Click += new System.EventHandler(this.LblZoomInAmplitudeClick);
 			// 
 			// lblZoomOutAmplitude
@@ -151,6 +160,7 @@
 			this.lblZoomOutAmplitude.Name = "lblZoomOutAmplitude";
 			this.lblZoomOutAmplitude.Size = new System.Drawing.Size(16, 16);
 			this.lblZoomOutAmplitude.TabIndex = 4;
+			this.toolTip1.SetToolTip(this.lblZoomOutAmplitude, "Zoom Out Amplitude");
 			this.lblZoomOutAmplitude.Click += new System.EventHandler(this.LblZoomOutAmplitudeClick);
 			// 
 			// lblIncreaseSelection
@@ -160,6 +170,7 @@
 			this.lblIncreaseSelection.Name = "lblIncreaseSelection";
 			this.lblIncreaseSelection.Size = new System.Drawing.Size(16, 16);
 			this.lblIncreaseSelection.TabIndex = 5;
+			this.toolTip1.SetToolTip(this.lblIncreaseSelection, "Increase Selection");
 			this.lblIncreaseSelection.Click += new System.EventHandler(this.LblIncreaseSelectionClick);
 			// 
 			// lblDecreaseSelection
@@ -169,6 +180,7 @@
 			this.lblDecreaseSelection.Name = "lblDecreaseSelection";
 			this.lblDecreaseSelection.Size = new System.Drawing.Size(16, 16);
 			this.lblDecreaseSelection.TabIndex = 6;
+			this.toolTip1.SetToolTip(this.lblDecreaseSelection, "Decrease Selection");
 			this.lblDecreaseSelection.Click += new System.EventHandler(this.LblDecreaseSelectionClick);
 			// 
 			// lblFilename

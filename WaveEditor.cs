@@ -131,7 +131,7 @@ namespace WaveEditor
 		}
 		void LblZoomSelectionClick(object sender, EventArgs e)
 		{
-			customWaveViewer1.Zoom(0, customWaveViewer1.WaveformDrawingWidth);
+			customWaveViewer1.ZoomSelection();
 		}
 		void LblZoomInAmplitudeClick(object sender, EventArgs e)
 		{
@@ -143,11 +143,11 @@ namespace WaveEditor
 		}
 		void LblIncreaseSelectionClick(object sender, EventArgs e)
 		{
-			
+			customWaveViewer1.IncreaseSelection();
 		}
 		void LblDecreaseSelectionClick(object sender, EventArgs e)
 		{
-			
+			customWaveViewer1.DecreaseSelection();
 		}
 		#endregion
 
