@@ -185,6 +185,17 @@ namespace WaveEditor
 			}
 		}
 		
+		private void ChangeHScrollbarPosition(int position) {
+			if(this.InvokeRequired)
+			{
+				this.Invoke(new Action(() => ChangeHScrollbarPosition(position)));
+			}
+			else
+			{
+				hScrollBar.Value = position;
+			}
+		}
+		
 		#endregion
 		
 		#region PropertyChanged
@@ -219,7 +230,7 @@ namespace WaveEditor
 		void CustomWaveViewer_PropertyChanged(object sender, PropertyChangedEventArgs e) {
 			switch (e.PropertyName) {
 				case "StartZoomSamplePosition":
-					hScrollBar.Value = customWaveViewer1.StartZoomSamplePosition;
+					ChangeHScrollbarPosition(customWaveViewer1.StartZoomSamplePosition);
 					break;
 				case "ZoomRatioString":
 					ChangeZoomRatio(customWaveViewer1.ZoomRatioString);
@@ -246,26 +257,33 @@ namespace WaveEditor
 		
 		private void UpdateScrollbar() {
 
-			if (customWaveViewer1.EndZoomSamplePosition > 0) {
-				// 1:64 = thumb: total scrollbar width divided by 2
-				// 1:32 = thumb: total scrollbar width divided by 4
-				// 1:16 = thumb: total scrollbar width divided by 8
-				// 1:8 = thumb: total scrollbar width divided by 16
-				// 1:4 = thumb: total scrollbar width divided by 32
-				// 1:2 = thumb: total scrollbar width divided by 64
-				// 1:2 = thumb: total scrollbar width divided by 64
-				
-				int startPos = customWaveViewer1.StartZoomSamplePosition;
-				int endPos = customWaveViewer1.EndZoomSamplePosition;
-				int rangeInSamples = Math.Abs(endPos - startPos);
-				int channelSampleLength = _soundPlayer.ChannelSampleLength;
-				double ratio = (channelSampleLength / rangeInSamples);
-				
-				hScrollBar.Minimum = 0;
-				hScrollBar.Maximum = channelSampleLength;
-				hScrollBar.LargeChange = (int) (hScrollBar.Maximum / ratio);
-				hScrollBar.SmallChange = (int) (hScrollBar.LargeChange / SliderLargeChange);
-				hScrollBar.Value = startPos;
+			if(this.InvokeRequired)
+			{
+				this.Invoke(new Action(UpdateScrollbar));
+			}
+			else
+			{
+				if (customWaveViewer1.EndZoomSamplePosition > 0) {
+					// 1:64 = thumb: total scrollbar width divided by 2
+					// 1:32 = thumb: total scrollbar width divided by 4
+					// 1:16 = thumb: total scrollbar width divided by 8
+					// 1:8 = thumb: total scrollbar width divided by 16
+					// 1:4 = thumb: total scrollbar width divided by 32
+					// 1:2 = thumb: total scrollbar width divided by 64
+					// 1:2 = thumb: total scrollbar width divided by 64
+					
+					int startPos = customWaveViewer1.StartZoomSamplePosition;
+					int endPos = customWaveViewer1.EndZoomSamplePosition;
+					int rangeInSamples = Math.Abs(endPos - startPos);
+					int channelSampleLength = _soundPlayer.ChannelSampleLength;
+					double ratio = (channelSampleLength / rangeInSamples);
+					
+					hScrollBar.Minimum = 0;
+					hScrollBar.Maximum = channelSampleLength;
+					hScrollBar.LargeChange = (int) (hScrollBar.Maximum / ratio);
+					hScrollBar.SmallChange = (int) (hScrollBar.LargeChange / SliderLargeChange);
+					hScrollBar.Value = startPos;
+				}
 			}
 		}
 		
