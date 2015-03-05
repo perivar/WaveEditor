@@ -475,10 +475,10 @@ namespace CommonUtils.GUI
 			{
 				_progressSample = SecondsToSamplePosition(_soundPlayer.ChannelPosition, _soundPlayer.ChannelLength, _soundPlayer.ChannelSampleLength);
 				
-				if (_progressSample < _startZoomSamplePosition) {
+				if (false && _progressSample < _startZoomSamplePosition) {
 					int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
 					Zoom(0, _progressSample + rangeInSamples);
-				} else if (_progressSample > _endZoomSamplePosition) {
+				} else if (false && _progressSample > _endZoomSamplePosition) {
 					int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
 					Zoom(_progressSample - rangeInSamples/2, _progressSample + rangeInSamples/2);
 				} else {
