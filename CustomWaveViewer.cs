@@ -475,19 +475,22 @@ namespace CommonUtils.GUI
 			{
 				_progressSample = SecondsToSamplePosition(_soundPlayer.ChannelPosition, _soundPlayer.ChannelLength, _soundPlayer.ChannelSampleLength);
 				
-				if (false && _progressSample < _startZoomSamplePosition) {
-					int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
+				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
+				if (_progressSample < _startZoomSamplePosition) {
 					Zoom(0, _progressSample + rangeInSamples);
-				} else if (false && _progressSample > _endZoomSamplePosition) {
-					int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
-					Zoom(_progressSample - rangeInSamples/2, _progressSample + rangeInSamples/2);
+				} else if (_progressSample > (_endZoomSamplePosition - rangeInSamples/2)) {
+					// don't zoom if we are in the laste scroll frame
+					if (_progressSample > _soundPlayer.ChannelSampleLength - rangeInSamples) {
+						// force redraw
+						this.Invalidate();
+					} else {
+						// keep the progress in the center
+						Zoom(_progressSample - rangeInSamples/2, _progressSample + rangeInSamples/2);
+					}
 				} else {
 					// force redraw
 					this.Invalidate();
 				}
-				
-				//int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
-				//Zoom(_progressSample - rangeInSamples/2, _progressSample + rangeInSamples/2);
 			}
 		}
 		#endregion

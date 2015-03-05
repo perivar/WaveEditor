@@ -192,7 +192,9 @@ namespace WaveEditor
 			}
 			else
 			{
-				hScrollBar.Value = position;
+				if (position < hScrollBar.Maximum) {
+					hScrollBar.Value = position;
+				}
 			}
 		}
 		
@@ -276,6 +278,8 @@ namespace WaveEditor
 					int endPos = customWaveViewer1.EndZoomSamplePosition;
 					int rangeInSamples = Math.Abs(endPos - startPos);
 					int channelSampleLength = _soundPlayer.ChannelSampleLength;
+					
+					// if ratio is 1 the large change is the same as maximum, i.e. the thumb is maximum
 					double ratio = (channelSampleLength / rangeInSamples);
 					
 					hScrollBar.Minimum = 0;
