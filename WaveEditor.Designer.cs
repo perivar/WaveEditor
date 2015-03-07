@@ -86,9 +86,9 @@
 			this.customWaveViewer1.Location = new System.Drawing.Point(0, 28);
 			this.customWaveViewer1.Name = "customWaveViewer1";
 			this.customWaveViewer1.PreviousStartZoomSamplePosition = 0;
-			this.customWaveViewer1.SamplesPerPixel = 128F;
+			this.customWaveViewer1.SamplesPerPixel = 128D;
 			this.customWaveViewer1.Size = new System.Drawing.Size(654, 229);
-			this.customWaveViewer1.StartLoopSamplePosition = -1;
+			this.customWaveViewer1.StartLoopSamplePosition = 0;
 			this.customWaveViewer1.StartZoomSamplePosition = 0;
 			this.customWaveViewer1.TabIndex = 0;
 			this.customWaveViewer1.WaveformDrawingHeight = 199;
@@ -239,6 +239,7 @@
 			this.lblPlayPosition.Size = new System.Drawing.Size(71, 20);
 			this.lblPlayPosition.TabIndex = 5;
 			this.lblPlayPosition.Text = "Play Position";
+			this.lblPlayPosition.Click += new System.EventHandler(this.LblPlayPositionClick);
 			// 
 			// lblDuration
 			// 
@@ -249,6 +250,7 @@
 			this.lblDuration.Size = new System.Drawing.Size(118, 20);
 			this.lblDuration.TabIndex = 4;
 			this.lblDuration.Text = "Duration";
+			this.lblDuration.Click += new System.EventHandler(this.LblDurationClick);
 			// 
 			// lblSelection
 			// 
@@ -259,6 +261,7 @@
 			this.lblSelection.Size = new System.Drawing.Size(223, 20);
 			this.lblSelection.TabIndex = 3;
 			this.lblSelection.Text = "Selection";
+			this.lblSelection.Click += new System.EventHandler(this.LblSelectionClick);
 			// 
 			// lblSamplerate
 			// 

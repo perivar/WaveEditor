@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
 
 using CommonUtils.Audio;
+using CommonUtils.FFT; // AudioAnalyzer and TimeLineUnit
+using  CommonUtils.GUI; // Custom Wave Viewer
 
 namespace WaveEditor
 {
@@ -18,6 +21,8 @@ namespace WaveEditor
 		#endregion
 
 		IWaveformPlayer _soundPlayer;
+		
+		private TimelineUnit _timelineUnit = TimelineUnit.Time;
 		
 		#region Constructors
 		public WaveEditor()
@@ -73,9 +78,7 @@ namespace WaveEditor
 			lblChannels.Text = String.Format("{0} Ch.", _soundPlayer.Channels);
 			lblSamplerate.Text = String.Format("{0} Hz", _soundPlayer.SampleRate);
 			
-			string durationTime = TimeSpan.FromSeconds(_soundPlayer.ChannelLength).ToString(@"hh\:mm\:ss\.fff");
-			int durationSamples = _soundPlayer.ChannelSampleLength;
-			lblDuration.Text = String.Format("{0} [{1}]", durationTime, durationSamples);
+			UpdateDuration();
 		}
 		
 		void TogglePlay()
@@ -206,22 +209,17 @@ namespace WaveEditor
 			switch (e.PropertyName)
 			{
 				case "ChannelPosition":
-					string channelPos = TimeSpan.FromSeconds(_soundPlayer.ChannelPosition).ToString(@"hh\:mm\:ss\.fff");
-					ChangeChannelPosition(channelPos);
+					UpdateChannelPosition();
 					break;
 				case "IsPlaying":
 					break;
 				case "ChannelLength":
 					break;
 				case "SelectionBegin":
+					UpdateSelection();
 					break;
 				case "SelectionEnd":
-					double selBegin = _soundPlayer.SelectionBegin.TotalSeconds;
-					double selEnd = _soundPlayer.SelectionEnd.TotalSeconds;
-					string selectionBegin = TimeSpan.FromSeconds(selBegin).ToString(@"hh\:mm\:ss\.fff");
-					string selectionEnd = TimeSpan.FromSeconds(selEnd).ToString(@"hh\:mm\:ss\.fff");
-					string selectionDuration = TimeSpan.FromSeconds(selEnd-selBegin).ToString(@"hh\:mm\:ss\.fff");
-					ChangeSelection(string.Format("{0} - {1} ({2})", selectionBegin, selectionEnd, selectionDuration));
+					UpdateSelection();
 					break;
 				case "WaveformData":
 					//hScrollBar.Maximum = (int) (soundEngine.ChannelSampleLength - 1);
@@ -303,5 +301,98 @@ namespace WaveEditor
 		}
 		#endregion
 		
+		#region LabelTimeMode Clicks
+		void LblSelectionClick(object sender, EventArgs e)
+		{
+			ToggleTimeMode();
+		}
+		void LblDurationClick(object sender, EventArgs e)
+		{
+			ToggleTimeMode();
+		}
+		void LblPlayPositionClick(object sender, EventArgs e)
+		{
+			ToggleTimeMode();
+		}
+		#endregion
+		
+		void ToggleTimeMode() {
+			
+			if (_timelineUnit == TimelineUnit.Samples) {
+				_timelineUnit = TimelineUnit.Seconds;
+			} else if (_timelineUnit == TimelineUnit.Seconds) {
+				_timelineUnit = TimelineUnit.Time;
+			} else {
+				// TimelineUnit.Time
+				_timelineUnit = TimelineUnit.Samples;
+			}
+			customWaveViewer1.TimelineUnit = _timelineUnit;
+			
+			UpdateSelection();
+			UpdateChannelPosition();
+			UpdateDuration();
+		}
+		
+		void UpdateSelection() {
+			string selectionLabel = "";
+			switch (_timelineUnit) {
+				case TimelineUnit.Samples:
+					int selectionSampleBegin = CustomWaveViewer.SecondsToSamplePosition(_soundPlayer.SelectionBegin.TotalSeconds, _soundPlayer.ChannelLength, _soundPlayer.ChannelSampleLength);
+					int selectionSampleEnd = CustomWaveViewer.SecondsToSamplePosition(_soundPlayer.SelectionEnd.TotalSeconds, _soundPlayer.ChannelLength, _soundPlayer.ChannelSampleLength);
+					int selectionSampleDuration = selectionSampleEnd-selectionSampleBegin;
+					selectionLabel = string.Format("{0} - {1} ({2})", selectionSampleBegin, selectionSampleEnd, selectionSampleDuration);
+					break;
+				case TimelineUnit.Time:
+					double selTimeBegin = _soundPlayer.SelectionBegin.TotalSeconds;
+					double selTimeEnd = _soundPlayer.SelectionEnd.TotalSeconds;
+					string selectionTimeBegin = TimeSpan.FromSeconds(selTimeBegin).ToString(@"hh\:mm\:ss\.fff");
+					string selectionTimeEnd = TimeSpan.FromSeconds(selTimeEnd).ToString(@"hh\:mm\:ss\.fff");
+					string selectionTimeDuration = TimeSpan.FromSeconds(selTimeEnd-selTimeBegin).ToString(@"hh\:mm\:ss\.fff");
+					selectionLabel = string.Format("{0} - {1} ({2})", selectionTimeBegin, selectionTimeEnd, selectionTimeDuration);
+					break;
+				case TimelineUnit.Seconds:
+					double selectionSecondsBegin = _soundPlayer.SelectionBegin.TotalSeconds;
+					double selectionSecondsEnd = _soundPlayer.SelectionEnd.TotalSeconds;
+					double selectionSecondsDuration = selectionSecondsEnd-selectionSecondsBegin;
+					selectionLabel = string.Format("{0:0.000} - {1:0.000} ({2:0.000})", selectionSecondsBegin, selectionSecondsEnd, selectionSecondsDuration);
+					break;
+			}
+			ChangeSelection(selectionLabel);
+		}
+		
+		void UpdateChannelPosition() {
+			string channelPosLabel = "";
+			switch (_timelineUnit) {
+				case TimelineUnit.Samples:
+					int channelSamplePos = CustomWaveViewer.SecondsToSamplePosition(_soundPlayer.ChannelPosition, _soundPlayer.ChannelLength, _soundPlayer.ChannelSampleLength);
+					channelPosLabel = string.Format("{0}", channelSamplePos);
+					break;
+				case TimelineUnit.Time:
+					channelPosLabel = TimeSpan.FromSeconds(_soundPlayer.ChannelPosition).ToString(@"hh\:mm\:ss\.fff");
+					break;
+				case TimelineUnit.Seconds:
+					channelPosLabel = string.Format("{0:0.000}", _soundPlayer.ChannelPosition);
+					break;
+			}
+
+			ChangeChannelPosition(channelPosLabel);
+		}
+		
+		void UpdateDuration() {
+			string durationLabel = "";
+			switch (_timelineUnit) {
+				case TimelineUnit.Samples:
+					durationLabel = String.Format("{0}", _soundPlayer.ChannelSampleLength);
+					break;
+				case TimelineUnit.Time:
+					durationLabel = TimeSpan.FromSeconds(_soundPlayer.ChannelLength).ToString(@"hh\:mm\:ss\.fff");
+					break;
+				case TimelineUnit.Seconds:
+					durationLabel = String.Format("{0:0.000}", _soundPlayer.ChannelLength);
+					break;
+			}
+
+			lblDuration.Text = durationLabel;
+		}
 	}
 }
