@@ -304,7 +304,7 @@ namespace CommonUtils.GUI
 			
 			// if everything is already selected, unselect
 			if (_soundPlayer.SelectionSampleBegin == 0 &&
-			    _soundPlayer.SelectionSampleEnd == _soundPlayer.ChannelSampleLength) {
+			    _soundPlayer.SelectionSampleEnd == _soundPlayer.ChannelSampleLength - 1) {
 
 				// fit to screen also clears loop regions
 				FitToScreen();
@@ -317,7 +317,7 @@ namespace CommonUtils.GUI
 				
 				// TODO: select everything visible instead of the whole song?
 				_soundPlayer.SelectionSampleBegin = 0;
-				_soundPlayer.SelectionSampleEnd = _soundPlayer.ChannelSampleLength;
+				_soundPlayer.SelectionSampleEnd = _soundPlayer.ChannelSampleLength - 1;
 				_soundPlayer.ChannelSamplePosition = 0;
 			}
 			
@@ -335,7 +335,7 @@ namespace CommonUtils.GUI
 				int startZoomSamplePos = _startZoomSamplePosition;
 				int endZoomSamplePos = _endZoomSamplePosition;
 				double samplesPerPixel = _samplesPerPixel;
-				int rangeInSamples = Math.Abs(endZoomSamplePos - startZoomSamplePos);
+				int rangeInSamples = Math.Abs(endZoomSamplePos - startZoomSamplePos) + 1;
 
 				// Update zoom
 				if (i > 0)
@@ -387,7 +387,7 @@ namespace CommonUtils.GUI
 				}
 				
 				// Check that we are not zooming too much
-				int rangeInSamples = Math.Abs(endZoomSamplePos - startZoomSamplePos);
+				int rangeInSamples = Math.Abs(endZoomSamplePos - startZoomSamplePos) + 1;
 				if (rangeInSamples <= 10) {
 					return;
 				}
@@ -503,7 +503,7 @@ namespace CommonUtils.GUI
 		public void IncreaseSelection() {
 			// keep start selection pos, but double the length
 			if (StartLoopSamplePosition >= 0 && EndLoopSamplePosition > 0) {
-				int rangeInSamples = Math.Abs(EndLoopSamplePosition - StartLoopSamplePosition);
+				int rangeInSamples = Math.Abs(EndLoopSamplePosition - StartLoopSamplePosition) + 1;
 				int rangeInPixles = Math.Abs(_endLoopXPosition - _startLoopXPosition);
 				
 				rangeInSamples *= 2;
@@ -523,7 +523,7 @@ namespace CommonUtils.GUI
 		public void DecreaseSelection() {
 			// keep start selection pos, but half the length
 			if (StartLoopSamplePosition >= 0 && EndLoopSamplePosition > 0) {
-				int rangeInSamples = Math.Abs(EndLoopSamplePosition - StartLoopSamplePosition);
+				int rangeInSamples = Math.Abs(EndLoopSamplePosition - StartLoopSamplePosition) + 1;
 				int rangeInPixles = Math.Abs(_endLoopXPosition - _startLoopXPosition);
 				
 				rangeInSamples /= 2;
@@ -571,7 +571,7 @@ namespace CommonUtils.GUI
 			{
 				_progressSample = _soundPlayer.ChannelSamplePosition;
 				
-				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
+				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition) + 1;
 				
 				// if the progress is before the zoom window
 				if (_progressSample < _startZoomSamplePosition) {
@@ -637,7 +637,7 @@ namespace CommonUtils.GUI
 			float hitpointFraction;
 			
 			// calculate the range
-			int rangeInSamples = oldEndZoomSamplePosition - oldStartZoomSamplePosition;
+			int rangeInSamples = oldEndZoomSamplePosition - oldStartZoomSamplePosition + 1;
 			
 			// Scroll the display left/right
 			if ((Control.ModifierKeys & Keys.Control) == Keys.Control) {
@@ -949,15 +949,16 @@ namespace CommonUtils.GUI
 				_soundPlayer.ChannelSamplePosition = 0;
 				
 				// keep zoom level and set position to 0
-				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
+				// TODO: Why did this not work when I added 1 to range in samples ?!
+				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition); // + 1;
 				Zoom(0, rangeInSamples);
 				
 			} else if (e.KeyCode == Keys.OemPeriod || e.KeyCode == Keys.End) {
-				_soundPlayer.ChannelSamplePosition = _soundPlayer.ChannelSampleLength;
+				_soundPlayer.ChannelSamplePosition = _soundPlayer.ChannelSampleLength - 1;
 
 				// keep zoom level and set position to last range
-				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition);
-				Zoom(_soundPlayer.ChannelSampleLength - rangeInSamples, _soundPlayer.ChannelSampleLength);
+				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition) + 1;
+				Zoom(_soundPlayer.ChannelSampleLength - rangeInSamples, _soundPlayer.ChannelSampleLength - 1);
 			}
 		}
 		#endregion
@@ -1109,7 +1110,7 @@ namespace CommonUtils.GUI
 			int newEndZoomSamplePosition = -1;
 			
 			// calculate the range
-			int rangeInSamples = oldEndZoomSamplePosition - oldStartZoomSamplePosition;
+			int rangeInSamples = oldEndZoomSamplePosition - oldStartZoomSamplePosition + 1;
 			
 			// find delta
 			int delta = rangeInSamples / 32;

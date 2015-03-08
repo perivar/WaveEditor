@@ -264,6 +264,7 @@
 			this.lblSelection.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.lblSelection.Size = new System.Drawing.Size(223, 20);
 			this.lblSelection.TabIndex = 3;
+			this.lblSelection.Text = "[Nothing Selected]";
 			this.toolTip1.SetToolTip(this.lblSelection, "Selection. Click to Toggle Time Mode.");
 			this.lblSelection.Click += new System.EventHandler(this.LblSelectionClick);
 			// 
