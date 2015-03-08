@@ -24,6 +24,11 @@ namespace CommonUtils.Audio
 		int Channels { get; }
 		
 		/// <summary>
+		/// Return the length in seconds per channel
+		/// </summary>
+		double ChannelLength { get; }
+		
+		/// <summary>
 		/// Return the sample length per Channel (i.e. if the waveform is stereo, this is half the total sample length)
 		/// </summary>
 		int ChannelSampleLength { get; }
@@ -50,24 +55,14 @@ namespace CommonUtils.Audio
 		float[] WaveformData { get; }
 
 		/// <summary>
-		/// Gets or sets the starting time for a section of repeat/looped audio.
+		/// Gets or sets the starting sample time for a section of repeat/looped audio.
 		/// </summary>
 		int SelectionSampleBegin { get; set; }
 
 		/// <summary>
-		/// Gets or sets the ending time for a section of repeat/looped audio.
+		/// Gets or sets the ending sample time for a section of repeat/looped audio.
 		/// </summary>
 		int SelectionSampleEnd { get; set; }
-		
-		/// <summary>
-		/// Read from file at a specific frequency rate
-		/// </summary>
-		/// <param name="filename">Filename to read from</param>
-		/// <param name="samplerate">Sample rate</param>
-		/// <param name="milliseconds">Milliseconds to read</param>
-		/// <param name="startmilliseconds">Start at a specific millisecond range</param>
-		/// <returns>Array with data</returns>
-		float[] ReadMonoFromFile(string filename, int samplerate, int milliseconds, int startmilliseconds);
 		
 		/// <summary>
 		/// Open File using passed path

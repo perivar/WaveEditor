@@ -46,6 +46,7 @@ namespace CommonUtils.GUI
 		double _samplesPerPixel = 128;
 		
 		// Mouse variables
+		MouseButtons _lastButtonUp = MouseButtons.None;
 		const int MOUSE_MOVE_TOLERANCE = 3;
 		bool _isMouseDown = false;
 		bool _isZooming = false;
@@ -258,7 +259,7 @@ namespace CommonUtils.GUI
 					}
 					
 					using (var currentFont = new Font("Arial", 7)) {
-						string currentText = String.Format("[{0}:{1}]  {2}  {3:hh\\:mm\\:ss\\.fff}", _currentPoint.X, _currentPoint.Y, _currentPointSamplePos, TimeSpan.FromSeconds(_currentPointTimePos));
+						string currentText = String.Format("[X:{0},Y:{1}]  Sample Index: {2}, Sample Time: {3:hh\\:mm\\:ss\\.fff}, Total time: {4:hh\\:mm\\:ss\\.fff}", _currentPoint.X, _currentPoint.Y, _currentPointSamplePos, TimeSpan.FromSeconds(_currentPointTimePos), TimeSpan.FromSeconds(_soundPlayer.ChannelLength));
 						SizeF currentTextSize = gNewBitmap.MeasureString(currentText, currentFont);
 						gNewBitmap.DrawString(currentText, currentFont, Brushes.Black, SIDE_MARGIN + _waveformDrawingWidth - currentTextSize.Width, TOP_MARGIN + _waveformDrawingHeight + 1);
 					}
@@ -380,8 +381,9 @@ namespace CommonUtils.GUI
 				if (startZoomSamplePos < 0) {
 					startZoomSamplePos = 0;
 				}
-				if (endZoomSamplePos > _soundPlayer.ChannelSampleLength || endZoomSamplePos < 0) {
-					endZoomSamplePos = _soundPlayer.ChannelSampleLength;
+				// Ensure that endZoomSamplePosition is 0-index based, e.g. the last index is max length - 1
+				if (endZoomSamplePos >= _soundPlayer.ChannelSampleLength || endZoomSamplePos < 0) {
+					endZoomSamplePos = _soundPlayer.ChannelSampleLength - 1;
 				}
 				
 				// Check that we are not zooming too much
@@ -393,9 +395,10 @@ namespace CommonUtils.GUI
 				StartZoomSamplePosition = startZoomSamplePos;
 				EndZoomSamplePosition = endZoomSamplePos;
 				PreviousStartZoomSamplePosition = startZoomSamplePos;
-				SamplesPerPixel = (float) (endZoomSamplePos - startZoomSamplePos) / (float) _waveformDrawingWidth;
+				// add 1 since the zoom sample positions are 0-index based
+				// don't add 1 since we want x number of samples to cover the whole screen
+				SamplesPerPixel = (double) (endZoomSamplePos - startZoomSamplePos) / (double) _waveformDrawingWidth;
 
-				
 				#region Update Loop Region After Zooming
 				
 				// TODO: only calculate loop start and end x position when painting
@@ -460,7 +463,7 @@ namespace CommonUtils.GUI
 			if (_soundPlayer != null && _soundPlayer.ChannelSampleLength > 1)
 			{
 				int numberOfChannelSamples = _soundPlayer.ChannelSampleLength;
-				SamplesPerPixel = (float) numberOfChannelSamples / (float) _waveformDrawingWidth;
+				SamplesPerPixel = (double) numberOfChannelSamples / (double)  _waveformDrawingWidth;
 				PreviousStartZoomSamplePosition = 0;
 				StartZoomSamplePosition = 0;
 				EndZoomSamplePosition = numberOfChannelSamples;
@@ -712,8 +715,10 @@ namespace CommonUtils.GUI
 					newStartZoomSamplePosition = midpoint;
 				if (newEndZoomSamplePosition < midpoint)
 					newEndZoomSamplePosition = midpoint;
-				if (newEndZoomSamplePosition > channelSampleLength)
-					newEndZoomSamplePosition = channelSampleLength;
+				if (newEndZoomSamplePosition >= channelSampleLength) {
+					// add 1 since the zoom sample positions are 0-index based
+					newEndZoomSamplePosition = channelSampleLength - 1;
+				}
 			}
 			
 			// If there a change in the view, then refresh the display
@@ -810,7 +815,20 @@ namespace CommonUtils.GUI
 		}
 		
 		void CustomWaveViewerMouseDoubleClick(object sender, MouseEventArgs e) {
-			SelectAll();
+			
+			switch (_lastButtonUp)
+			{
+				case System.Windows.Forms.MouseButtons.Left:
+					SelectAll();
+					
+					break;
+				case System.Windows.Forms.MouseButtons.Right:
+
+					break;
+				case System.Windows.Forms.MouseButtons.Middle:
+					
+					break;
+			}
 		}
 		
 		/// <summary>
@@ -836,11 +854,14 @@ namespace CommonUtils.GUI
 		/// </summary>
 		void GetCurrentPoint() {
 			_currentPointSamplePos = _startZoomSamplePosition + XPositionToSamplePosition(_currentPoint.X, _samplesPerPixel, true);
-			_currentPointTimePos = (double) _soundPlayer.ChannelSampleLength / (double) _soundPlayer.SampleRate;
+			_currentPointTimePos = (double) _currentPointSamplePos / (double) _soundPlayer.SampleRate;
 		}
 		
 		void CustomWaveViewerMouseUp(object sender, MouseEventArgs e)
 		{
+			// store last mouse button clicked for checking double clik button in mousedoubleclick event
+			_lastButtonUp = e.Button;
+			
 			if (!_isMouseDown || _soundPlayer.WaveformData == null)
 				return;
 			
@@ -974,7 +995,7 @@ namespace CommonUtils.GUI
 		/// <returns>x position</returns>
 		private static int SamplePositionToXPosition(int samplePosition, double samplesPerPixel, bool useMargin=true) {
 			double pixelPosition = (double) samplePosition / samplesPerPixel;
-			int pixelPos = (int) pixelPosition;
+			int pixelPos = (int) Math.Round(pixelPosition, MidpointRounding.AwayFromZero);
 			return (useMargin ? SIDE_MARGIN : 0) + pixelPos;
 		}
 
@@ -992,7 +1013,7 @@ namespace CommonUtils.GUI
 			} else {
 				samplePos = samplesPerPixel * (double) xPosition;
 			}
-			return (int) samplePos;
+			return (int) Math.Round(samplePos, MidpointRounding.AwayFromZero);
 		}
 
 		/// <summary>

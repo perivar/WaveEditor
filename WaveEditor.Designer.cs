@@ -230,6 +230,7 @@
 			this.lblZoomRatio.Size = new System.Drawing.Size(56, 20);
 			this.lblZoomRatio.TabIndex = 6;
 			this.lblZoomRatio.Text = "Ratio";
+			this.toolTip1.SetToolTip(this.lblZoomRatio, "Ratio");
 			// 
 			// lblPlayPosition
 			// 
@@ -240,6 +241,7 @@
 			this.lblPlayPosition.Size = new System.Drawing.Size(71, 20);
 			this.lblPlayPosition.TabIndex = 5;
 			this.lblPlayPosition.Text = "Play Position";
+			this.toolTip1.SetToolTip(this.lblPlayPosition, "Position. Click to Toggle Time Mode.");
 			this.lblPlayPosition.Click += new System.EventHandler(this.LblPlayPositionClick);
 			// 
 			// lblDuration
@@ -251,6 +253,7 @@
 			this.lblDuration.Size = new System.Drawing.Size(118, 20);
 			this.lblDuration.TabIndex = 4;
 			this.lblDuration.Text = "Duration";
+			this.toolTip1.SetToolTip(this.lblDuration, "Duration. Click to Toggle Time Mode.");
 			this.lblDuration.Click += new System.EventHandler(this.LblDurationClick);
 			// 
 			// lblSelection
@@ -261,6 +264,7 @@
 			this.lblSelection.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.lblSelection.Size = new System.Drawing.Size(223, 20);
 			this.lblSelection.TabIndex = 3;
+			this.toolTip1.SetToolTip(this.lblSelection, "Selection. Click to Toggle Time Mode.");
 			this.lblSelection.Click += new System.EventHandler(this.LblSelectionClick);
 			// 
 			// lblSamplerate
@@ -272,6 +276,7 @@
 			this.lblSamplerate.Size = new System.Drawing.Size(60, 20);
 			this.lblSamplerate.TabIndex = 2;
 			this.lblSamplerate.Text = "Samplerate";
+			this.toolTip1.SetToolTip(this.lblSamplerate, "Sample Rate");
 			// 
 			// lblChannels
 			// 
@@ -282,6 +287,7 @@
 			this.lblChannels.Size = new System.Drawing.Size(45, 20);
 			this.lblChannels.TabIndex = 1;
 			this.lblChannels.Text = "Channels";
+			this.toolTip1.SetToolTip(this.lblChannels, "Channels");
 			// 
 			// lblBitdepth
 			// 
@@ -292,6 +298,7 @@
 			this.lblBitdepth.Size = new System.Drawing.Size(37, 20);
 			this.lblBitdepth.TabIndex = 0;
 			this.lblBitdepth.Text = "Bitdepth";
+			this.toolTip1.SetToolTip(this.lblBitdepth, "Bit Depth");
 			// 
 			// WaveEditor
 			// 

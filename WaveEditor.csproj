@@ -93,11 +93,6 @@
       <DependentUpon>CustomSpectrumAnalyzer.cs</DependentUpon>
     </Compile>
     <Compile Include="CustomWaveViewer.cs" />
-    <Compile Include="Graphics\Int32Point.cs" />
-    <Compile Include="Graphics\Int32Size.cs" />
-    <Compile Include="Graphics\LineDash.cs" />
-    <Compile Include="Graphics\Renderer.cs" />
-    <Compile Include="Graphics\RendererContext.cs" />
     <Compile Include="ISoundPlayer.cs" />
     <Compile Include="ISpectrumPlayer.cs" />
     <Compile Include="IWaveformPlayer.cs" />
@@ -117,9 +112,6 @@
     <EmbeddedResource Include="WaveEditor.resx">
       <DependentUpon>WaveEditor.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Graphics" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
