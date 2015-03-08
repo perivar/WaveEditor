@@ -269,7 +269,7 @@ namespace CommonUtils.GUI
 				e.Graphics.DrawImageUnscaled(tempImage, 0, 0);
 				
 				// setup the region we want to invert (select region)
-				var destination = new Rectangle(_startLoopXPosition, TOP_MARGIN - 1, _loopRegion.Width, _loopRegion.Height - 2 * TOP_MARGIN);
+				var destination = new Rectangle(_startLoopXPosition, TOP_MARGIN - 1, _loopRegion.Width, _loopRegion.Height);
 				var region = new Region(destination);
 				e.Graphics.Clip = region;
 
@@ -573,6 +573,8 @@ namespace CommonUtils.GUI
 				
 				int rangeInSamples = Math.Abs(_endZoomSamplePosition - _startZoomSamplePosition) + 1;
 				
+				// TODO: Fix proper scrolling, this works but doesn't make sense when playing and being zoomed
+				/*
 				// if the progress is before the zoom window
 				if (_progressSample < _startZoomSamplePosition) {
 					Zoom(0, _progressSample + rangeInSamples);
@@ -595,6 +597,9 @@ namespace CommonUtils.GUI
 					// force redraw
 					this.Invalidate();
 				}
+				 */
+				// force redraw
+				this.Invalidate();
 			}
 		}
 		#endregion
@@ -756,14 +761,14 @@ namespace CommonUtils.GUI
 			int mouseDownXPosition = _mouseDownPoint.X;
 			int startLoopXPos = _startLoopXPosition;
 			int endLoopXPos = _endLoopXPosition;
-			int prevStartXPos = _previousStartLoopXPosition;
-			int prevEndXPos = _previousEndLoopXPosition;
+			int prevStartLoopXPos = _previousStartLoopXPosition;
+			int prevEndLoopXPos = _previousEndLoopXPosition;
 			
 			if (_soundPlayer.WaveformData == null) return;
 			
 			if (_isMouseDown) {
 				// dragging left anchor
-				if (Between(mouseDownXPosition, prevStartXPos - MOUSE_MOVE_TOLERANCE, prevStartXPos + MOUSE_MOVE_TOLERANCE)) {
+				if (Between(mouseDownXPosition, prevStartLoopXPos - MOUSE_MOVE_TOLERANCE, prevStartLoopXPos + MOUSE_MOVE_TOLERANCE)) {
 					
 					// test if current left x is bigger than right
 					if (currentXPosition > _endLoopXPosition) {
@@ -775,7 +780,7 @@ namespace CommonUtils.GUI
 					}
 					
 					// dragging right anchor
-				} else if (Between(mouseDownXPosition, prevEndXPos - MOUSE_MOVE_TOLERANCE, prevEndXPos + MOUSE_MOVE_TOLERANCE)) {
+				} else if (Between(mouseDownXPosition, prevEndLoopXPos - MOUSE_MOVE_TOLERANCE, prevEndLoopXPos + MOUSE_MOVE_TOLERANCE)) {
 					
 					// test if current right x is less than left
 					if (currentXPosition < _startLoopXPosition) {
@@ -899,15 +904,33 @@ namespace CommonUtils.GUI
 					doUpdateLoopRegion = true;
 				}
 			} else {
-				_previousStartLoopXPosition = _startLoopXPosition;
-				_previousEndLoopXPosition = _endLoopXPosition;
+				int oldStartLoopSamplePosition = StartLoopSamplePosition;
+				int oldEndLoopSamplePosition = EndLoopSamplePosition;
 
-				StartLoopSamplePosition = Math.Max(_previousStartZoomSamplePosition + XPositionToSamplePosition(_startLoopXPosition, _samplesPerPixel), 0);
-				EndLoopSamplePosition = Math.Min(_previousStartZoomSamplePosition + XPositionToSamplePosition(_endLoopXPosition, _samplesPerPixel), _soundPlayer.ChannelSampleLength);
-
+				if (oldStartLoopSamplePosition == -1) oldStartLoopSamplePosition = 0;
+				if (oldEndLoopSamplePosition == -1) oldEndLoopSamplePosition = 0;
+				
+				int newStartLoopSamplePosition = Math.Max(_previousStartZoomSamplePosition + XPositionToSamplePosition(_startLoopXPosition, _samplesPerPixel), 0);
+				int newEndLoopSamplePosition = Math.Min(_previousStartZoomSamplePosition + XPositionToSamplePosition(_endLoopXPosition, _samplesPerPixel), _soundPlayer.ChannelSampleLength - 1);
+				
+				// Don't update Start if it's outside of the zoom window
+				if (StartZoomSamplePosition > oldStartLoopSamplePosition) {
+					EndLoopSamplePosition = newEndLoopSamplePosition;
+				} else if (EndZoomSamplePosition < oldEndLoopSamplePosition) {
+					// Don't update End if it's outside of the zoom window
+					StartLoopSamplePosition = newStartLoopSamplePosition;
+				} else {
+					// Update both if inside zoom window
+					StartLoopSamplePosition = newStartLoopSamplePosition;
+					EndLoopSamplePosition = newEndLoopSamplePosition;
+				}
+				
 				_soundPlayer.SelectionSampleBegin = _startLoopSamplePosition;
 				_soundPlayer.SelectionSampleEnd = _endLoopSamplePosition;
 				_soundPlayer.ChannelSamplePosition = _startLoopSamplePosition;
+
+				_previousStartLoopXPosition = _startLoopXPosition;
+				_previousEndLoopXPosition = _endLoopXPosition;
 			}
 			
 			if (doUpdateLoopRegion) {
@@ -1158,7 +1181,7 @@ namespace CommonUtils.GUI
 		{
 			if (_startLoopXPosition > 0 && _endLoopXPosition > 0) {
 				_loopRegion.Width = _endLoopXPosition - _startLoopXPosition;
-				_loopRegion.Height = TOP_MARGIN + WaveformDrawingHeight;
+				_loopRegion.Height = _waveformDrawingHeight;
 			} else {
 				_loopRegion.Width = 0;
 				_loopRegion.Height = 0;
