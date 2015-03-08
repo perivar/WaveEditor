@@ -16,12 +16,7 @@ namespace CommonUtils.Audio
 		/// <summary>
 		/// Gets or sets the current sound streams playback position.
 		/// </summary>
-		double ChannelPosition { get; set; }
-
-		/// <summary>
-		/// Gets the total channel length in seconds.
-		/// </summary>
-		double ChannelLength { get; }
+		int ChannelSamplePosition { get; set; }
 
 		/// <summary>
 		/// Gets the number of Channels (2 = stereo)
@@ -57,12 +52,12 @@ namespace CommonUtils.Audio
 		/// <summary>
 		/// Gets or sets the starting time for a section of repeat/looped audio.
 		/// </summary>
-		TimeSpan SelectionBegin { get; set; }
+		int SelectionSampleBegin { get; set; }
 
 		/// <summary>
 		/// Gets or sets the ending time for a section of repeat/looped audio.
 		/// </summary>
-		TimeSpan SelectionEnd { get; set; }
+		int SelectionSampleEnd { get; set; }
 		
 		/// <summary>
 		/// Read from file at a specific frequency rate

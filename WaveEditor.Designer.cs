@@ -91,6 +91,7 @@
 			this.customWaveViewer1.StartLoopSamplePosition = 0;
 			this.customWaveViewer1.StartZoomSamplePosition = 0;
 			this.customWaveViewer1.TabIndex = 0;
+			this.customWaveViewer1.TimelineUnit = CommonUtils.FFT.TimelineUnit.Time;
 			this.customWaveViewer1.WaveformDrawingHeight = 199;
 			this.customWaveViewer1.WaveformDrawingWidth = 594;
 			// 
@@ -260,7 +261,6 @@
 			this.lblSelection.RightToLeft = System.Windows.Forms.RightToLeft.No;
 			this.lblSelection.Size = new System.Drawing.Size(223, 20);
 			this.lblSelection.TabIndex = 3;
-			this.lblSelection.Text = "Selection";
 			this.lblSelection.Click += new System.EventHandler(this.LblSelectionClick);
 			// 
 			// lblSamplerate
