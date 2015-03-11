@@ -5,6 +5,7 @@ namespace CommonUtils.Audio
 	/// Provides access to sound player functionality needed to
 	/// generate a Waveform.
 	/// The original interface idea copyright (C) 2011 - 2012, Jacob Johnston
+	/// Heavily modified by perivar@nerseth.com
 	/// </summary>
 	public interface IWaveformPlayer : ISoundPlayer, IDisposable
 	{
@@ -68,5 +69,13 @@ namespace CommonUtils.Audio
 		/// Open File using passed path
 		/// </summary>
 		/// <param name="path">path to audio file</param>
-		void OpenFile(string path);	}
+		void OpenFile(string path);
+
+		/// <summary>
+		/// Save File using passed path
+		/// </summary>
+		/// <param name="path">path to audio file</param>
+		void SaveFile(string path);
+		
+	}
 }

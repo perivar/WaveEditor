@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -64,11 +65,30 @@ namespace WaveEditor
 
 		void OpenFileDialog()
 		{
-			openFileDialog.Filter = "Audio Files(*.wav;*.mp3)|*.wav;*.mp3|All files (*.*)|*.*";
+			openFileDialog.Filter = "All supported Audio Files|*.wav;*.ogg;*.mp1;*.m1a;*.mp2;*.m2a;*.mpa;*.mus;*.mp3;*.mpg;*.mpeg;*.mp3pro;*.aif;*.aiff;*.bwf;*.wma;*.wmv;*.aac;*.adts;*.mp4;*.m4a;*.m4b;*.mod;*.mdz;*.mo3;*.s3m;*.s3z;*.xm;*.xmz;*.it;*.itz;*.umx;*.mtm;*.flac;*.fla;*.oga;*.ogg;*.aac;*.m4a;*.m4b;*.mp4;*.mpc;*.mp+;*.mpp;*.ac3;*.wma;*.ape;*.mac|WAVE Audio|*.wav|Ogg Vorbis|*.ogg|MPEG Layer 1|*.mp1;*.m1a|MPEG Layer 2|*.mp2;*.m2a;*.mpa;*.mus|MPEG Layer 3|*.mp3;*.mpg;*.mpeg;*.mp3pro|Audio IFF|*.aif;*.aiff|Broadcast Wave|*.bwf|Windows Media Audio|*.wma;*.wmv|Advanced Audio Codec|*.aac;*.adts|MPEG 4 Audio|*.mp4;*.m4a;*.m4b|MOD Music|*.mod;*.mdz|MO3 Music|*.mo3|S3M Music|*.s3m;*.s3z|XM Music|*.xm;*.xmz|IT Music|*.it;*.itz;*.umx|MTM Music|*.mtm|Free Lossless Audio Codec|*.flac;*.fla|Free Lossless Audio Codec (Ogg)|*.oga;*.ogg|Advanced Audio Coding|*.aac|Advanced Audio Coding MPEG-4|*.m4a;*.m4b;*.mp4|Musepack|*.mpc;*.mp+;*.mpp|Dolby Digital AC-3|*.ac3|Windows Media Audio|*.wma|Monkey's Audio|*.ape;*.mac";
 			if (openFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				string fileName = openFileDialog.FileName;
 				OpenFile(fileName);
+			}
+		}
+		
+		string SaveFileDialog()
+		{
+			saveFileDialog1.InitialDirectory = _soundPlayer.FilePath;
+			saveFileDialog1.Title = "Save Audio File";
+			saveFileDialog1.CheckPathExists = true;
+			saveFileDialog1.DefaultExt = "wav";
+			saveFileDialog1.Filter = "Wav files (*.wav)|*.wav|All files (*.*)|*.*";
+			saveFileDialog1.FilterIndex = 2;
+			saveFileDialog1.RestoreDirectory = true;
+			
+			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				_soundPlayer.SaveFile(saveFileDialog1.FileName);
+				return saveFileDialog1.FileName;
+			} else {
+				return null;
 			}
 		}
 		
@@ -271,19 +291,26 @@ namespace WaveEditor
 					// 1:8 = thumb: total scrollbar width divided by 16
 					// 1:4 = thumb: total scrollbar width divided by 32
 					// 1:2 = thumb: total scrollbar width divided by 64
-					// 1:2 = thumb: total scrollbar width divided by 64
 					
 					int startPos = customWaveViewer1.StartZoomSamplePosition;
 					int endPos = customWaveViewer1.EndZoomSamplePosition;
-					int rangeInSamples = Math.Abs(endPos - startPos);
+					int rangeInSamples = Math.Abs(endPos - startPos) + 1;
 					int channelSampleLength = _soundPlayer.ChannelSampleLength;
 					
 					// if ratio is 1 the large change is the same as maximum, i.e. the thumb is maximum
-					double ratio = (channelSampleLength / rangeInSamples);
+					double ratio = (double) channelSampleLength / (double) rangeInSamples;
+					
+					// a scroll bar can only go up to it's maximum minus the size of the scrollbar's slider.
+					// And the size of the slider appears to be equal to (LargeChange - 1).
+
+					// The value of a scroll bar cannot reach its maximum value through user interaction at run time.
+					// The maximum value that can be reached through user interaction is equal to
+					// 1 plus the Maximum property value minus the LargeChange property value.
+					// If necessary, you can set the Maximum property to the size of the object -1 to account for the term of 1.
 					
 					hScrollBar.Minimum = 0;
 					hScrollBar.Maximum = channelSampleLength;
-					hScrollBar.LargeChange = (int) (hScrollBar.Maximum / ratio);
+					hScrollBar.LargeChange = (int) ( (double) channelSampleLength / ratio );
 					hScrollBar.SmallChange = (int) (hScrollBar.LargeChange / SliderLargeChange);
 					hScrollBar.Value = startPos;
 				}
@@ -295,6 +322,8 @@ namespace WaveEditor
 			if (e.NewValue > e.OldValue) {
 				int newStartPos = e.NewValue;
 				customWaveViewer1.ScrollTime(true, newStartPos);
+			} else if (e.NewValue == e.OldValue) {
+				// no change in value, means do nothing
 			} else {
 				int newStartPos = e.NewValue;
 				customWaveViewer1.ScrollTime(false, newStartPos);
@@ -321,11 +350,23 @@ namespace WaveEditor
 			
 			if (_timelineUnit == TimelineUnit.Samples) {
 				_timelineUnit = TimelineUnit.Seconds;
+
+				samplesToolStripMenuItem.Checked = false;
+				secondsToolStripMenuItem.Checked = true;
+				timeFormatToolStripMenuItem.Checked = false;
+				
 			} else if (_timelineUnit == TimelineUnit.Seconds) {
 				_timelineUnit = TimelineUnit.Time;
-			} else {
-				// TimelineUnit.Time
+
+				samplesToolStripMenuItem.Checked = false;
+				secondsToolStripMenuItem.Checked = false;
+				timeFormatToolStripMenuItem.Checked = true;
+			} else { // if TimelineUnit.Time
 				_timelineUnit = TimelineUnit.Samples;
+
+				samplesToolStripMenuItem.Checked = true;
+				secondsToolStripMenuItem.Checked = false;
+				timeFormatToolStripMenuItem.Checked = false;
 			}
 			customWaveViewer1.TimelineUnit = _timelineUnit;
 			
@@ -394,6 +435,80 @@ namespace WaveEditor
 			}
 
 			lblDuration.Text = durationLabel;
+		}
+		
+		void NewToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			MessageBox.Show("Not Implemented");
+		}
+		void OpenToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			OpenFileDialog();
+		}
+		void SaveToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			string newPath = _soundPlayer.FilePath + ".new.wav";
+			_soundPlayer.SaveFile(newPath);
+			OpenFile(newPath);
+		}
+		void SaveAsToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			string newPath = SaveFileDialog();
+			if (newPath != null) {
+				OpenFile(newPath);
+			}
+		}
+		void ExitToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			this.Close();
+		}
+		void SelectionGridLinesToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			MessageBox.Show("Not Implemented");
+		}
+		void SamplesToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			samplesToolStripMenuItem.Checked = true;
+			secondsToolStripMenuItem.Checked = false;
+			timeFormatToolStripMenuItem.Checked = false;
+
+			_timelineUnit = TimelineUnit.Samples;
+			customWaveViewer1.TimelineUnit = _timelineUnit;
+			
+			UpdateSelection();
+			UpdateChannelPosition();
+			UpdateDuration();
+		}
+		void SecondsToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			samplesToolStripMenuItem.Checked = false;
+			secondsToolStripMenuItem.Checked = true;
+			timeFormatToolStripMenuItem.Checked = false;
+
+			_timelineUnit = TimelineUnit.Seconds;
+			customWaveViewer1.TimelineUnit = _timelineUnit;
+			
+			UpdateSelection();
+			UpdateChannelPosition();
+			UpdateDuration();
+		}
+		void TimeFormatToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			samplesToolStripMenuItem.Checked = false;
+			secondsToolStripMenuItem.Checked = false;
+			timeFormatToolStripMenuItem.Checked = true;
+
+			_timelineUnit = TimelineUnit.Time;
+			customWaveViewer1.TimelineUnit = _timelineUnit;
+			
+			UpdateSelection();
+			UpdateChannelPosition();
+			UpdateDuration();
+		}
+		void SnapToZeroCrossingToolStripMenuItemClick(object sender, EventArgs e)
+		{
+			snapToZeroCrossingToolStripMenuItem.Checked = !snapToZeroCrossingToolStripMenuItem.Checked;
+			customWaveViewer1.SnapToZeroCrossing = snapToZeroCrossingToolStripMenuItem.Checked;
 		}
 	}
 }

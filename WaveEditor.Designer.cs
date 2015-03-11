@@ -27,6 +27,22 @@
 		private System.Windows.Forms.Label lblSelection;
 		private System.Windows.Forms.Label lblSamplerate;
 		private System.Windows.Forms.ToolTip toolTip1;
+		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem selectionGridLinesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem sampleDisplayToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem samplesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem secondsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem timeFormatToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+		private System.Windows.Forms.ToolStripMenuItem snapToZeroCrossingToolStripMenuItem;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -72,8 +88,25 @@
 			this.lblChannels = new System.Windows.Forms.Label();
 			this.lblBitdepth = new System.Windows.Forms.Label();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.selectionGridLinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.sampleDisplayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.samplesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.secondsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.timeFormatToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.snapToZeroCrossingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
 			this.flowLayoutPanel1.SuspendLayout();
 			this.flowLayoutPanel2.SuspendLayout();
+			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// customWaveViewer1
@@ -83,16 +116,17 @@
 			| System.Windows.Forms.AnchorStyles.Right)));
 			this.customWaveViewer1.EndLoopSamplePosition = -1;
 			this.customWaveViewer1.EndZoomSamplePosition = 0;
-			this.customWaveViewer1.Location = new System.Drawing.Point(0, 28);
+			this.customWaveViewer1.Location = new System.Drawing.Point(0, 44);
 			this.customWaveViewer1.Name = "customWaveViewer1";
 			this.customWaveViewer1.PreviousStartZoomSamplePosition = 0;
 			this.customWaveViewer1.SamplesPerPixel = 128D;
-			this.customWaveViewer1.Size = new System.Drawing.Size(654, 229);
+			this.customWaveViewer1.Size = new System.Drawing.Size(654, 213);
+			this.customWaveViewer1.SnapToZeroCrossing = false;
 			this.customWaveViewer1.StartLoopSamplePosition = 0;
 			this.customWaveViewer1.StartZoomSamplePosition = 0;
 			this.customWaveViewer1.TabIndex = 0;
 			this.customWaveViewer1.TimelineUnit = CommonUtils.FFT.TimelineUnit.Time;
-			this.customWaveViewer1.WaveformDrawingHeight = 199;
+			this.customWaveViewer1.WaveformDrawingHeight = 183;
 			this.customWaveViewer1.WaveformDrawingWidth = 594;
 			// 
 			// openFileDialog
@@ -188,9 +222,9 @@
 			// 
 			this.lblFilename.Dock = System.Windows.Forms.DockStyle.Top;
 			this.lblFilename.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblFilename.Location = new System.Drawing.Point(0, 0);
+			this.lblFilename.Location = new System.Drawing.Point(0, 24);
 			this.lblFilename.Name = "lblFilename";
-			this.lblFilename.Size = new System.Drawing.Size(654, 25);
+			this.lblFilename.Size = new System.Drawing.Size(654, 17);
 			this.lblFilename.TabIndex = 11;
 			this.lblFilename.Text = "No Filename";
 			this.lblFilename.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -301,6 +335,130 @@
 			this.lblBitdepth.Text = "Bitdepth";
 			this.toolTip1.SetToolTip(this.lblBitdepth, "Bit Depth");
 			// 
+			// menuStrip1
+			// 
+			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.fileToolStripMenuItem,
+			this.optionsToolStripMenuItem});
+			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+			this.menuStrip1.Name = "menuStrip1";
+			this.menuStrip1.Size = new System.Drawing.Size(654, 24);
+			this.menuStrip1.TabIndex = 14;
+			this.menuStrip1.Text = "menuStrip1";
+			// 
+			// fileToolStripMenuItem
+			// 
+			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.newToolStripMenuItem,
+			this.openToolStripMenuItem,
+			this.saveToolStripMenuItem,
+			this.saveAsToolStripMenuItem,
+			this.toolStripSeparator1,
+			this.exitToolStripMenuItem});
+			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+			this.fileToolStripMenuItem.Text = "File";
+			// 
+			// newToolStripMenuItem
+			// 
+			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+			this.newToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.newToolStripMenuItem.Text = "New";
+			this.newToolStripMenuItem.Click += new System.EventHandler(this.NewToolStripMenuItemClick);
+			// 
+			// openToolStripMenuItem
+			// 
+			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+			this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.openToolStripMenuItem.Text = "Open...";
+			this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItemClick);
+			// 
+			// saveToolStripMenuItem
+			// 
+			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+			this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.saveToolStripMenuItem.Text = "Save";
+			this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItemClick);
+			// 
+			// saveAsToolStripMenuItem
+			// 
+			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.saveAsToolStripMenuItem.Text = "Save As...";
+			this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItemClick);
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(152, 6);
+			// 
+			// exitToolStripMenuItem
+			// 
+			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+			this.exitToolStripMenuItem.Text = "Exit";
+			this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItemClick);
+			// 
+			// optionsToolStripMenuItem
+			// 
+			this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.selectionGridLinesToolStripMenuItem,
+			this.sampleDisplayToolStripMenuItem,
+			this.snapToZeroCrossingToolStripMenuItem});
+			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+			this.optionsToolStripMenuItem.Text = "Options";
+			// 
+			// selectionGridLinesToolStripMenuItem
+			// 
+			this.selectionGridLinesToolStripMenuItem.Name = "selectionGridLinesToolStripMenuItem";
+			this.selectionGridLinesToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+			this.selectionGridLinesToolStripMenuItem.Text = "Selection grid lines";
+			this.selectionGridLinesToolStripMenuItem.Click += new System.EventHandler(this.SelectionGridLinesToolStripMenuItemClick);
+			// 
+			// sampleDisplayToolStripMenuItem
+			// 
+			this.sampleDisplayToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.samplesToolStripMenuItem,
+			this.secondsToolStripMenuItem,
+			this.timeFormatToolStripMenuItem});
+			this.sampleDisplayToolStripMenuItem.Name = "sampleDisplayToolStripMenuItem";
+			this.sampleDisplayToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+			this.sampleDisplayToolStripMenuItem.Text = "Sample display";
+			// 
+			// samplesToolStripMenuItem
+			// 
+			this.samplesToolStripMenuItem.Name = "samplesToolStripMenuItem";
+			this.samplesToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+			this.samplesToolStripMenuItem.Text = "Samples";
+			this.samplesToolStripMenuItem.Click += new System.EventHandler(this.SamplesToolStripMenuItemClick);
+			// 
+			// secondsToolStripMenuItem
+			// 
+			this.secondsToolStripMenuItem.Name = "secondsToolStripMenuItem";
+			this.secondsToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+			this.secondsToolStripMenuItem.Text = "Seconds";
+			this.secondsToolStripMenuItem.Click += new System.EventHandler(this.SecondsToolStripMenuItemClick);
+			// 
+			// timeFormatToolStripMenuItem
+			// 
+			this.timeFormatToolStripMenuItem.Checked = true;
+			this.timeFormatToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.timeFormatToolStripMenuItem.Name = "timeFormatToolStripMenuItem";
+			this.timeFormatToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+			this.timeFormatToolStripMenuItem.Text = "Time format";
+			this.timeFormatToolStripMenuItem.Click += new System.EventHandler(this.TimeFormatToolStripMenuItemClick);
+			// 
+			// snapToZeroCrossingToolStripMenuItem
+			// 
+			this.snapToZeroCrossingToolStripMenuItem.Name = "snapToZeroCrossingToolStripMenuItem";
+			this.snapToZeroCrossingToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+			this.snapToZeroCrossingToolStripMenuItem.Text = "Snap to zero crossing";
+			this.snapToZeroCrossingToolStripMenuItem.Click += new System.EventHandler(this.SnapToZeroCrossingToolStripMenuItemClick);
+			// 
 			// WaveEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -311,12 +469,17 @@
 			this.Controls.Add(this.lblFilename);
 			this.Controls.Add(this.flowLayoutPanel1);
 			this.Controls.Add(this.customWaveViewer1);
+			this.Controls.Add(this.menuStrip1);
 			this.KeyPreview = true;
+			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "WaveEditor";
 			this.Text = "Wave Editor";
 			this.flowLayoutPanel1.ResumeLayout(false);
 			this.flowLayoutPanel2.ResumeLayout(false);
+			this.menuStrip1.ResumeLayout(false);
+			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 	}
