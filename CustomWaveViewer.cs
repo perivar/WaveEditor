@@ -712,7 +712,7 @@ namespace CommonUtils.GUI
 				
 				// If scrolling right (forward in time on the waveform)
 				if (e.Delta > 0) {
-					delta = MathUtils.LimitInt(delta, 0, channelSampleLength - oldEndZoomSamplePosition);
+					delta = MathUtils.LimitInt(delta, 0, channelSampleLength - oldEndZoomSamplePosition - 1);
 					newStartZoomSamplePosition = oldStartZoomSamplePosition + delta;
 					newEndZoomSamplePosition = oldEndZoomSamplePosition + delta;
 				}
@@ -783,7 +783,7 @@ namespace CommonUtils.GUI
 				if (newEndZoomSamplePosition < midpoint)
 					newEndZoomSamplePosition = midpoint;
 				if (newEndZoomSamplePosition >= channelSampleLength) {
-					// add 1 since the zoom sample positions are 0-index based
+					// subtract 1 since the zoom sample positions are 0-index based
 					newEndZoomSamplePosition = channelSampleLength - 1;
 				}
 			}
@@ -1018,7 +1018,7 @@ namespace CommonUtils.GUI
 		#region Key Events
 		/// <summary>Keys which can generate OnKeyDown event.</summary>
 		private static readonly Keys[] InputKeys = new []
-		{ Keys.Left, Keys.Up, Keys.Right, Keys.Down, Keys.Oemcomma, Keys.Home, Keys.OemPeriod, Keys.End };
+		{ Keys.Left, Keys.Up, Keys.Right, Keys.Down, Keys.Oemcomma, Keys.Home, Keys.OemPeriod, Keys.End, Keys.Decimal };
 
 		protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
 		{
@@ -1041,7 +1041,7 @@ namespace CommonUtils.GUI
 				ScrollTime(true);
 			} else if (e.KeyCode == Keys.Left) {
 				ScrollTime(false);
-			} else if (e.KeyCode == Keys.Oemcomma || e.KeyCode == Keys.Home) {
+			} else if (e.KeyCode == Keys.Oemcomma || e.KeyCode == Keys.Home || e.KeyCode == Keys.Decimal) {
 				_soundPlayer.ChannelSamplePosition = 0;
 				
 				// keep zoom level and set position to 0
