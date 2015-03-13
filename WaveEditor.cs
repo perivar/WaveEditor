@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
 
-using System.Xml.Linq;
 using CommonUtils.Audio;
 using CommonUtils.FFT; // AudioAnalyzer and TimeLineUnit
 using  CommonUtils.GUI; // Custom Wave Viewer
@@ -75,31 +72,34 @@ namespace WaveEditor
 		
 		string SaveFileDialog()
 		{
-			saveFileDialog1.InitialDirectory = _soundPlayer.FilePath;
-			saveFileDialog1.Title = "Save Audio File";
-			saveFileDialog1.CheckPathExists = true;
-			saveFileDialog1.DefaultExt = "wav";
-			saveFileDialog1.Filter = "Wav files (*.wav)|*.wav|All files (*.*)|*.*";
-			saveFileDialog1.FilterIndex = 2;
-			saveFileDialog1.RestoreDirectory = true;
-			
-			if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-			{
-				_soundPlayer.SaveFile(saveFileDialog1.FileName);
-				return saveFileDialog1.FileName;
-			} else {
-				return null;
+			if (_soundPlayer != null) {
+				saveFileDialog1.InitialDirectory = _soundPlayer.FilePath;
+				saveFileDialog1.Title = "Save Audio File";
+				saveFileDialog1.CheckPathExists = true;
+				saveFileDialog1.DefaultExt = "wav";
+				saveFileDialog1.Filter = "Wav files (*.wav)|*.wav|All files (*.*)|*.*";
+				saveFileDialog1.FilterIndex = 2;
+				saveFileDialog1.RestoreDirectory = true;
+				
+				if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+				{
+					_soundPlayer.SaveFile(saveFileDialog1.FileName);
+					return saveFileDialog1.FileName;
+				}
 			}
+			return null;
 		}
 		
 		void OpenFile(string fileName) {
-			_soundPlayer.OpenFile(fileName);
-			lblFilename.Text = Path.GetFileName(fileName);
-			lblBitdepth.Text = String.Format("{0} Bit", _soundPlayer.BitsPerSample);
-			lblChannels.Text = String.Format("{0} Ch.", _soundPlayer.Channels);
-			lblSamplerate.Text = String.Format("{0} Hz", _soundPlayer.SampleRate);
-			
-			UpdateDuration();
+			if (_soundPlayer != null) {
+				_soundPlayer.OpenFile(fileName);
+				lblFilename.Text = Path.GetFileName(fileName);
+				lblBitdepth.Text = String.Format("{0} Bit", _soundPlayer.BitsPerSample);
+				lblChannels.Text = String.Format("{0} Ch.", _soundPlayer.Channels);
+				lblSamplerate.Text = String.Format("{0} Hz", _soundPlayer.SampleRate);
+				
+				UpdateDuration();
+			}
 		}
 		
 		void TogglePlay()
@@ -379,24 +379,30 @@ namespace WaveEditor
 			string selectionLabel = "";
 			switch (_timelineUnit) {
 				case TimelineUnit.Samples:
-					int selectionSampleBegin = _soundPlayer.SelectionSampleBegin;
-					int selectionSampleEnd = _soundPlayer.SelectionSampleEnd;
-					int selectionSampleDuration = selectionSampleEnd-selectionSampleBegin + 1;
-					selectionLabel = string.Format("{0} - {1} ({2})", selectionSampleBegin, selectionSampleEnd, selectionSampleDuration);
+					if (_soundPlayer != null) {
+						int selectionSampleBegin = _soundPlayer.SelectionSampleBegin;
+						int selectionSampleEnd = _soundPlayer.SelectionSampleEnd;
+						int selectionSampleDuration = selectionSampleEnd-selectionSampleBegin + 1;
+						selectionLabel = string.Format("{0} - {1} ({2})", selectionSampleBegin, selectionSampleEnd, selectionSampleDuration);
+					}
 					break;
 				case TimelineUnit.Time:
-					double selTimeBegin = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleBegin, _soundPlayer.SampleRate);
-					double selTimeEnd = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleEnd, _soundPlayer.SampleRate);
-					string selectionTimeBegin = TimeSpan.FromSeconds(selTimeBegin).ToString(@"hh\:mm\:ss\.fff");
-					string selectionTimeEnd = TimeSpan.FromSeconds(selTimeEnd).ToString(@"hh\:mm\:ss\.fff");
-					string selectionTimeDuration = TimeSpan.FromSeconds(selTimeEnd-selTimeBegin).ToString(@"hh\:mm\:ss\.fff");
-					selectionLabel = string.Format("{0} - {1} ({2})", selectionTimeBegin, selectionTimeEnd, selectionTimeDuration);
+					if (_soundPlayer != null) {
+						double selTimeBegin = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleBegin, _soundPlayer.SampleRate);
+						double selTimeEnd = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleEnd, _soundPlayer.SampleRate);
+						string selectionTimeBegin = TimeSpan.FromSeconds(selTimeBegin).ToString(@"hh\:mm\:ss\.fff");
+						string selectionTimeEnd = TimeSpan.FromSeconds(selTimeEnd).ToString(@"hh\:mm\:ss\.fff");
+						string selectionTimeDuration = TimeSpan.FromSeconds(selTimeEnd-selTimeBegin).ToString(@"hh\:mm\:ss\.fff");
+						selectionLabel = string.Format("{0} - {1} ({2})", selectionTimeBegin, selectionTimeEnd, selectionTimeDuration);
+					}
 					break;
 				case TimelineUnit.Seconds:
-					double selSecondsBegin = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleBegin, _soundPlayer.SampleRate);
-					double selSecondsEnd = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleEnd, _soundPlayer.SampleRate);
-					double selSecondsDuration = selSecondsEnd-selSecondsBegin;
-					selectionLabel = string.Format("{0:0.000} - {1:0.000} ({2:0.000})", selSecondsBegin, selSecondsEnd, selSecondsDuration);
+					if (_soundPlayer != null) {
+						double selSecondsBegin = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleBegin, _soundPlayer.SampleRate);
+						double selSecondsEnd = CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.SelectionSampleEnd, _soundPlayer.SampleRate);
+						double selSecondsDuration = selSecondsEnd-selSecondsBegin;
+						selectionLabel = string.Format("{0:0.000} - {1:0.000} ({2:0.000})", selSecondsBegin, selSecondsEnd, selSecondsDuration);
+					}
 					break;
 			}
 			ChangeSelection(selectionLabel);
@@ -406,14 +412,20 @@ namespace WaveEditor
 			string channelPosLabel = "";
 			switch (_timelineUnit) {
 				case TimelineUnit.Samples:
-					int channelSamplePos = _soundPlayer.ChannelSamplePosition;
-					channelPosLabel = string.Format("{0}", channelSamplePos);
+					if (_soundPlayer != null) {
+						int channelSamplePos = _soundPlayer.ChannelSamplePosition;
+						channelPosLabel = string.Format("{0}", channelSamplePos);
+					}
 					break;
 				case TimelineUnit.Time:
-					channelPosLabel = TimeSpan.FromSeconds(CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSamplePosition, _soundPlayer.SampleRate)).ToString(@"hh\:mm\:ss\.fff");
+					if (_soundPlayer != null) {
+						channelPosLabel = TimeSpan.FromSeconds(CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSamplePosition, _soundPlayer.SampleRate)).ToString(@"hh\:mm\:ss\.fff");
+					}
 					break;
 				case TimelineUnit.Seconds:
-					channelPosLabel = string.Format("{0:0.000}", CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSamplePosition, _soundPlayer.SampleRate));
+					if (_soundPlayer != null) {
+						channelPosLabel = string.Format("{0:0.000}", CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSamplePosition, _soundPlayer.SampleRate));
+					}
 					break;
 			}
 
@@ -424,13 +436,19 @@ namespace WaveEditor
 			string durationLabel = "";
 			switch (_timelineUnit) {
 				case TimelineUnit.Samples:
-					durationLabel = String.Format("{0}", _soundPlayer.ChannelSampleLength);
+					if (_soundPlayer != null) {
+						durationLabel = String.Format("{0}", _soundPlayer.ChannelSampleLength);
+					}
 					break;
 				case TimelineUnit.Time:
-					durationLabel = TimeSpan.FromSeconds(CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSampleLength, _soundPlayer.SampleRate)).ToString(@"hh\:mm\:ss\.fff");
+					if (_soundPlayer != null) {
+						durationLabel = TimeSpan.FromSeconds(CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSampleLength, _soundPlayer.SampleRate)).ToString(@"hh\:mm\:ss\.fff");
+					}
 					break;
 				case TimelineUnit.Seconds:
-					durationLabel = String.Format("{0:0.000}", CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSampleLength, _soundPlayer.SampleRate));
+					if (_soundPlayer != null) {
+						durationLabel = String.Format("{0:0.000}", CustomWaveViewer.SamplePositionToSeconds(_soundPlayer.ChannelSampleLength, _soundPlayer.SampleRate));
+					}
 					break;
 			}
 
@@ -447,9 +465,11 @@ namespace WaveEditor
 		}
 		void SaveToolStripMenuItemClick(object sender, EventArgs e)
 		{
-			string newPath = _soundPlayer.FilePath + ".new.wav";
-			_soundPlayer.SaveFile(newPath);
-			OpenFile(newPath);
+			if (_soundPlayer != null) {
+				string newPath = _soundPlayer.FilePath + ".new.wav";
+				_soundPlayer.SaveFile(newPath);
+				OpenFile(newPath);
+			}
 		}
 		void SaveAsToolStripMenuItemClick(object sender, EventArgs e)
 		{

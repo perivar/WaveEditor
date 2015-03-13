@@ -224,7 +224,7 @@ namespace CommonUtils.GUI
 			
 			// set drawing properties for the waveform
 			_drawingProperties.DrawRaw = true;
-			_drawingProperties.DisplayDebugBox = true;
+			_drawingProperties.DisplayDebugBox = false;
 
 			// TODO: change the way the double buffering is done, e.g.
 			// http://inchoatethoughts.com/custom-drawing-controls-in-c-manual-double-buffering
@@ -325,16 +325,12 @@ namespace CommonUtils.GUI
 				// fit to screen also clears loop regions
 				FitToScreen();
 			} else {
-				// fit to screen also clears loop regions
-				FitToScreen();
-
 				_startLoopXPosition = SIDE_MARGIN;
 				_endLoopXPosition = SIDE_MARGIN + _waveformDrawingWidth;
 				
-				// TODO: select everything visible instead of the whole song?
-				_soundPlayer.SelectionSampleBegin = 0;
-				_soundPlayer.SelectionSampleEnd = _soundPlayer.ChannelSampleLength - 1;
-				_soundPlayer.ChannelSamplePosition = 0;
+				_soundPlayer.SelectionSampleBegin = _startZoomSamplePosition;
+				_soundPlayer.SelectionSampleEnd = _endZoomSamplePosition;
+				_soundPlayer.ChannelSamplePosition = _startZoomSamplePosition;
 			}
 			
 			UpdateLoopRegion();
@@ -638,19 +634,44 @@ namespace CommonUtils.GUI
 			_currentPointTimePos = (double) _currentPointSamplePos / (double) _soundPlayer.SampleRate;
 		}
 		
-		private void StoreZeroCrossingValues(int mouseDownXPosition, int currentXPosition) {
+		private void StoreZeroCrossingValues(int xPosition1, int xPosition2) {
 			int newSamplePos1 = -1;
 			int newSamplePos2 = -1;
 			int newXpos1 = -1;
 			int newXpos2 = -1;
 			
-			// range to search within is from start zoom until samplePos
-			ClosestZeroCrossingPosition(true, _soundPlayer, mouseDownXPosition, _startZoomSamplePosition, _endZoomSamplePosition, _samplesPerPixel, out newSamplePos1, out newXpos1);
+			// range to search within is from start zoom until samplePos (searching reverse)
+			if (xPosition1 >= 0) {
+				ClosestZeroCrossingPosition(true, _soundPlayer, xPosition1, _startZoomSamplePosition, _endZoomSamplePosition, _samplesPerPixel, out newSamplePos1, out newXpos1);
+			}
 			
 			// range to search within is from samplePos until end zoom
-			ClosestZeroCrossingPosition(false, _soundPlayer, currentXPosition, _startZoomSamplePosition, _endZoomSamplePosition, _samplesPerPixel, out newSamplePos2, out newXpos2);
+			if (xPosition2 >= 0) {
+				ClosestZeroCrossingPosition(false, _soundPlayer, xPosition2, _startZoomSamplePosition, _endZoomSamplePosition, _samplesPerPixel, out newSamplePos2, out newXpos2);
+			}
 			
-			if (newXpos1 < newXpos2) {
+			if (xPosition1 == -1) {
+				// do not update start loop
+				_endLoopXPosition = newXpos2;
+				EndLoopSamplePosition = newSamplePos2;
+			} else if (xPosition2 == -1) {
+				// do not update end loop
+				if (newXpos1 != -1) {
+					_startLoopXPosition = newXpos1;
+					StartLoopSamplePosition = newSamplePos1;
+				} else {
+					// if finding start failed, set to zero
+					_startLoopXPosition = 0;
+					StartLoopSamplePosition = 0;
+				}
+			} else if (newXpos1 == -1) {
+				// did not find a zero crossing
+				_startLoopXPosition = SIDE_MARGIN;
+				StartLoopSamplePosition = 0;
+			} else if (newXpos2 == -1) {
+				// did not find a zero crossing
+				
+			} else if (newXpos1 < newXpos2) {
 				_startLoopXPosition = newXpos1;
 				_endLoopXPosition = newXpos2;
 				
@@ -827,7 +848,7 @@ namespace CommonUtils.GUI
 			int prevStartLoopXPos = _previousStartLoopXPosition;
 			int prevEndLoopXPos = _previousEndLoopXPosition;
 			
-			if (_soundPlayer.WaveformData == null) return;
+			if (_soundPlayer == null || _soundPlayer.WaveformData == null) return;
 			
 			if (_isMouseDown) {
 				
@@ -835,7 +856,7 @@ namespace CommonUtils.GUI
 					// we are dragging left anchor
 					
 					if (SnapToZeroCrossing) {
-						StoreZeroCrossingValues(currentXPosition, _previousEndLoopXPosition);
+						StoreZeroCrossingValues(currentXPosition, -1);
 					} else {
 						// test if current left x is bigger than right
 						if (currentXPosition > _endLoopXPosition) {
@@ -851,7 +872,7 @@ namespace CommonUtils.GUI
 					// we are dragging right anchor
 					
 					if (SnapToZeroCrossing) {
-						StoreZeroCrossingValues(_previousStartLoopXPosition, currentXPosition);
+						StoreZeroCrossingValues(-1, currentXPosition);
 					} else {
 						// test if current right x is less than left
 						if (currentXPosition < _startLoopXPosition) {
@@ -921,7 +942,7 @@ namespace CommonUtils.GUI
 			// store last mouse button clicked for checking double clik button in mousedoubleclick event
 			_lastButtonUp = e.Button;
 			
-			if (!_isMouseDown || _soundPlayer.WaveformData == null)
+			if (!_isMouseDown || _soundPlayer == null || _soundPlayer.WaveformData == null)
 				return;
 			
 			_isMouseDown = false;
@@ -1413,41 +1434,59 @@ namespace CommonUtils.GUI
 		
 		#region Audio Processing Methods
 		
-		// taken from WaveEdit.cs WavePad Source file
-		public static bool FindZeroCrossing(float[] audioData, int chans, bool Reverse, out int framePosition)
+		/// <summary>
+		/// Find Zero Crossing Points
+		/// </summary>
+		/// <param name="audioData">audio data</param>
+		/// <param name="channels">channels</param>
+		/// <param name="doReverse">whether to search backwards</param>
+		/// <param name="framePosition">out frame position</param>
+		/// <returns>whether zero crossing was found</returns>
+		/// <remarks>
+		/// originally copied from from WaveEdit.cs WavePad Source file
+		/// but modified to work with zero crossing both directions
+		/// and both mono and stereo files
+		/// </remarks>
+		public static bool FindZeroCrossing(float[] audioData, int channels, bool doReverse, out int framePosition)
 		{
 			if (audioData == null) {
 				framePosition = -1;
 				return false;
 			}
 			
-			int frames = audioData.Length;
+			int frames = (int) ((double) audioData.Length / (double) channels);
 			int start = 0;
-			if (Reverse) // if searching backwards
+			if (doReverse)
 			{
+				// if searching backwards
 				start = frames - 1;
-				for (int iFrame = start - 1; iFrame >= 0; iFrame--) // for each frame
+				for (int i = start - 1; i >= 0; i--) // for each frame
 				{
-					for (int iChan = 0; iChan < chans; iChan++) // for each channel
+					for (int channelCounter = 0; channelCounter < channels; channelCounter++) // for each channel
 					{
-						if (audioData[iChan*iFrame] < 0 && audioData[iChan*iFrame + 1] >= 0) // if span crosses zero
+						// if span crosses zero
+						if ((audioData[channels*i+channelCounter] > 0 && audioData[channels*i+channelCounter + 1] <= 0)
+						    || (audioData[channels*i+channelCounter] < 0 && audioData[channels*i+channelCounter + 1] >= 0))
 						{
-							framePosition = iFrame;
+							framePosition = channels*i+channelCounter;
 							return true;
 						}
 					}
 				}
-			} // searching forward
+			}
 			else
 			{
+				// searching forward
 				start = 0;
-				for (int iFrame = start; iFrame < frames - 1; iFrame++) // for each frame
+				for (int i = start; i < frames - 1; i++) // for each frame
 				{
-					for (int iChan = 0; iChan < chans; iChan++) // for each channel
+					for (int channelCounter = 0; channelCounter < channels; channelCounter++) // for each channel
 					{
-						if (audioData[iChan*iFrame] < 0 && audioData[iChan*iFrame + 1] >= 0) // if span crosses zero
+						// if span crosses zero
+						if ((audioData[channels*i+channelCounter] > 0 && audioData[channels*i+channelCounter + 1] <= 0)
+						    || (audioData[channels*i+channelCounter] < 0 && audioData[channels*i+channelCounter + 1] >= 0))
 						{
-							framePosition = iFrame;
+							framePosition = channels*i+channelCounter;
 							return true;
 						}
 					}
