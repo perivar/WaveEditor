@@ -415,7 +415,6 @@ namespace CommonUtils.GUI
 				
 				// TODO: only calculate loop start and end x position when painting
 				
-				
 				if (_startLoopSamplePosition < _startZoomSamplePosition
 				    && _endLoopSamplePosition < _startZoomSamplePosition) {
 					
@@ -485,10 +484,10 @@ namespace CommonUtils.GUI
 			if (_soundPlayer != null && _soundPlayer.ChannelSampleLength > 1)
 			{
 				int numberOfChannelSamples = _soundPlayer.ChannelSampleLength;
-				SamplesPerPixel = (double) numberOfChannelSamples / (double)  _waveformDrawingWidth;
-				PreviousStartZoomSamplePosition = 0;
 				StartZoomSamplePosition = 0;
 				EndZoomSamplePosition = numberOfChannelSamples - 1;
+				PreviousStartZoomSamplePosition = 0;
+				SamplesPerPixel = (double) numberOfChannelSamples / (double)  _waveformDrawingWidth;
 			}
 
 			// remove select region after zooming
