@@ -129,10 +129,6 @@
 			this.customWaveViewer1.WaveformDrawingHeight = 183;
 			this.customWaveViewer1.WaveformDrawingWidth = 594;
 			// 
-			// openFileDialog
-			// 
-			this.openFileDialog.FileName = "openFileDialog1";
-			// 
 			// flowLayoutPanel1
 			// 
 			this.flowLayoutPanel1.Controls.Add(this.lblZoomIn);

@@ -10,6 +10,12 @@ namespace CommonUtils.Audio
 	public interface IWaveformPlayer : ISoundPlayer, IDisposable
 	{
 		/// <summary>
+		/// The file name filter string which can be used in a standard 'OpenFileDialog' in the format:
+		/// allFormatName|AllExtensions|FormatName1|externtions1|FormatName2|externtions2...
+		/// </summary>
+		string FileFilter { get; }
+		
+		/// <summary>
 		/// Return the file path, can be null
 		/// </summary>
 		string FilePath { get; }
@@ -45,13 +51,15 @@ namespace CommonUtils.Audio
 		int TotalSampleLength { get; }
 		
 		/// <summary>
-		/// Gets the raw level data for the waveform.
+		/// Gets the raw interleaved data for the waveform.
 		/// </summary>
 		/// <remarks>
-		/// Level data should be structured in an array where each sucessive index
-		/// alternates between left or right channel data, starting with left. Index 0
-		/// should be the first left level, index 1 should be the first right level, index
-		/// 2 should be the second left level, etc.
+		/// Samples in a multi-channel PCM wave file are interleaved.
+		/// That is, in a stereo file, one sample for the left channel will be followed by
+		/// one sample for the right channel,
+		/// followed by another sample for the left channel, then right channel, and so forth.
+		/// Index 0 should be the first left level, index 1 should be the first right level,
+		/// index 2 should be the second left level, etc.
 		/// </remarks>
 		float[] WaveformData { get; }
 
