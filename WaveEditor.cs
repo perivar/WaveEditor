@@ -94,7 +94,7 @@ namespace WaveEditor
 		
 		void OpenFile(string fileName) {
 			if (_soundPlayer != null) {
-				_soundPlayer.OpenFile(fileName);
+				_soundPlayer.OpenFile(fileName, true);
 				lblFilename.Text = Path.GetFileName(fileName);
 				lblBitdepth.Text = String.Format("{0} Bit", _soundPlayer.BitsPerSample);
 				lblChannels.Text = String.Format("{0} Ch.", _soundPlayer.Channels);

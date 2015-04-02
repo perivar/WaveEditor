@@ -74,16 +74,16 @@ namespace CommonUtils.Audio
 		int SelectionSampleEnd { get; set; }
 		
 		/// <summary>
-		/// Open File using passed path
+		/// Open File using passed file path
 		/// </summary>
 		/// <param name="path">path to audio file</param>
-		void OpenFile(string path);
-
+		/// <param name="doPlayFromMemory">Load into memory instead of using filestream</param>
+		void OpenFile(string path, bool doPlayFromMemory = false);
+		
 		/// <summary>
 		/// Save File using passed path
 		/// </summary>
 		/// <param name="path">path to audio file</param>
 		void SaveFile(string path);
-		
 	}
 }
