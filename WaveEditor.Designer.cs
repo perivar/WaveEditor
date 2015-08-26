@@ -125,7 +125,7 @@
 			this.customWaveViewer1.StartLoopSamplePosition = 0;
 			this.customWaveViewer1.StartZoomSamplePosition = 0;
 			this.customWaveViewer1.TabIndex = 0;
-			this.customWaveViewer1.TimelineUnit = CommonUtils.FFT.TimelineUnit.Time;
+			this.customWaveViewer1.TimelineUnit = CommonUtils.MathLib.FFT.TimelineUnit.Time;
 			this.customWaveViewer1.WaveformDrawingHeight = 183;
 			this.customWaveViewer1.WaveformDrawingWidth = 594;
 			// 

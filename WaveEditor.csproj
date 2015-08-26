@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>WaveEditor</RootNamespace>
     <AssemblyName>WaveEditor</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
@@ -22,7 +22,7 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <BaseAddress>4194304</BaseAddress>
     <RegisterForComInterop>False</RegisterForComInterop>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
@@ -54,10 +54,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -66,31 +62,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\ColorUtils.cs">
+    <Compile Include="..\CommonUtils\Library\Source\ColorUtils.cs">
       <Link>ColorUtils.cs</Link>
     </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\ExtendedGraphics.cs">
+    <Compile Include="..\CommonUtils\Library\Source\ExtendedGraphics.cs">
       <Link>ExtendedGraphics.cs</Link>
     </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\FFT\AudioAnalyzer.cs">
+    <Compile Include="..\CommonUtils\Library\Source\MathLib\FFT\AudioAnalyzer.cs">
       <Link>AudioAnalyzer.cs</Link>
     </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\FFT\FFTWindows.cs">
+    <Compile Include="..\CommonUtils\Library\Source\MathLib\FFT\FFTWindows.cs">
       <Link>FFTWindows.cs</Link>
     </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\FFT\LomontFFT.cs">
+    <Compile Include="..\CommonUtils\Library\Source\MathLib\FFT\LomontFFT.cs">
       <Link>LomontFFT.cs</Link>
     </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\GUI\GUIUtils.cs">
-      <Link>GUIUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\ImageUtils.cs">
-      <Link>ImageUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\MathUtils.cs">
+    <Compile Include="..\CommonUtils\Library\Source\MathUtils.cs">
       <Link>MathUtils.cs</Link>
     </Compile>
-    <Compile Include="..\AudioVSTToolbox\CommonUtils\MidiUtils.cs">
+    <Compile Include="..\CommonUtils\Library\Source\MidiUtils.cs">
       <Link>MidiUtils.cs</Link>
     </Compile>
     <Compile Include="CustomSpectrumAnalyzer.cs" />

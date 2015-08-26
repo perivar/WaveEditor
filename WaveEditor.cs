@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using System.IO;
 
 using CommonUtils.Audio;
-using CommonUtils.FFT; // AudioAnalyzer and TimeLineUnit
+using CommonUtils.MathLib.FFT; // AudioAnalyzer and TimeLineUnit
 using  CommonUtils.GUI; // Custom Wave Viewer
 
 namespace WaveEditor

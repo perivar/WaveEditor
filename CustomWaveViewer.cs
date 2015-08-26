@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 
-using CommonUtils.FFT; // Audio Analyzer, TimeLineUnit and DrawingProperties
+using CommonUtils.MathLib.FFT; // Audio Analyzer, TimeLineUnit and DrawingProperties
 using CommonUtils.Audio;
 
 namespace CommonUtils.GUI
@@ -575,8 +575,6 @@ namespace CommonUtils.GUI
 				                                                 new Size(this.Width, this.Height),
 				                                                 _amplitude,
 				                                                 _startZoomSamplePosition, _endZoomSamplePosition,
-				                                                 -1, -1,
-				                                                 -1,
 				                                                 _soundPlayer.SampleRate,
 				                                                 _soundPlayer.Channels,
 				                                                 _drawingProperties);
